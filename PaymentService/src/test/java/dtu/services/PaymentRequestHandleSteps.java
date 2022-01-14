@@ -163,6 +163,7 @@ public class PaymentRequestHandleSteps {
         //Correlation between payment -> token
         tokenEvent = new Event(event_name, new Object[] {customerId, payment.getToken(), valid_token });
         verify(messageQueue).publish(tokenEvent);
+        throw new Exception();
     }
 
 
