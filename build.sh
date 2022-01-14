@@ -9,6 +9,6 @@ pushd messaging-utilities-3.2
 popd
 
 # Build the services
-pushd TokenService
+pushd PaymentService
 ./build.sh
 popd

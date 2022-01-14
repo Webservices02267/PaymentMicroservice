@@ -2,4 +2,4 @@
 set -e
 mvn clean package
 
-docker build . -t token-service
+docker build . -t payment-service
