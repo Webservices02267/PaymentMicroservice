@@ -5,16 +5,16 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
-import dtu.TokenService.Domain.Entities.Payment;
-import dtu.TokenService.Presentation.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import dtu.Domain.Payment;
+
 public class PaymentTestSteps {
     MessageQueue queue = mock(MessageQueue.class);
-    dtu.TokenService.Presentation.Resources.PaymentDispatcher2 PaymentDispatcher2 = new dtu.TokenService.Presentation.Resources.PaymentDispatcher2(queue);
+    dtu.Presentation.PaymentDispatcher2 PaymentDispatcher2 = new dtu.Presentation.PaymentDispatcher2(queue);
 
     Payment payment = new Payment("1","2","3","4");
 
