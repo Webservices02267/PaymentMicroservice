@@ -161,7 +161,7 @@ public class PaymentRequestHandleSteps {
         final boolean valid_token = service.doTokenVerificationResponseEvent(token, customerId);
         //TODO: Make sure that the token to payment mapping is saved in the payment service between calls
         //Correlation between payment -> token
-        tokenEvent = new Event(event_name, new Object[] {customerId, payment.getToken(), null });
+        tokenEvent = new Event(event_name, new Object[] {customerId, payment.getToken(), valid_token });
         verify(messageQueue).publish(tokenEvent);
     }
 
