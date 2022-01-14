@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import dtu.Domain.Payment;
+import dtu.ws.fastmoney.BankService;
 
 public class PaymentServiceImplementation implements dtu.Application.IPaymentService {
 
@@ -13,6 +14,10 @@ public class PaymentServiceImplementation implements dtu.Application.IPaymentSer
     BankServiceWrapper bankService = new BankServiceWrapper(new MockBankService());
     dtu.Application.IPaymentRepository paymentRepository;
 
+    public PaymentServiceImplementation(BankService bankService, dtu.Application.IPaymentRepository paymentRepository) {
+        this.bankService = new BankServiceWrapper(bankService);
+        this.paymentRepository = paymentRepository;
+    }
 
     public PaymentServiceImplementation(dtu.Application.IPaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
@@ -24,7 +29,7 @@ public class PaymentServiceImplementation implements dtu.Application.IPaymentSer
         var customer = bankService.bs.getAccount(payment.getCustomerId());
         var merchant = bankService.bs.getAccount(payment.getMerchantId());
         paymentRepository.create(payment);
-        tokenService.removeToken(payment.getCustomerId(), payment.getToken());
+        //tokenService.removeToken(payment.getCustomerId(), payment.getToken());
         bankService.transferMoney(payment.getCustomerId(), payment.getMerchantId(), new BigDecimal(payment.getAmount()), "robin hood");
 
 

@@ -38,6 +38,26 @@ public class Payment {
     private String customerId;
     private boolean status;
 
+    public static Payment build(String customerId, String merchantId, String token, String amount) throws ArgumentNullException, NegativeAmountException, AmountIsNotANumberException {
+        Payment payment = new Payment();
+        payment.setMerchantId(merchantId);
+        payment.setCustomerId(customerId);
+        payment.setToken(token);
+        payment.setAmount(amount);
+        return payment;
+    }
+
+    public static Payment build(String customerId, String merchantId, String amount) throws ArgumentNullException, NegativeAmountException, AmountIsNotANumberException {
+        Payment payment = new Payment();
+        payment.setCustomerId(customerId);
+        payment.setMerchantId(merchantId);
+        payment.setAmount(amount);
+        return payment;
+    }
+
+    public Payment() {
+    }
+
     public Payment(String merchantId, String token, String amount) {
         try {
             setMerchantId(merchantId);
@@ -75,16 +95,7 @@ public class Payment {
         this.status = status;
     }
 
-    public static Payment build(String customerId, String merchantId, String token, String amount) throws ArgumentNullException, NegativeAmountException, AmountIsNotANumberException {
-        Payment payment = new Payment();
-        payment.setMerchantId(merchantId);
-        payment.setToken(token);
-        payment.setAmount(amount);
-        return payment;
-    }
 
-    public Payment() {
-    }
 
 
     public String getMerchantId() {

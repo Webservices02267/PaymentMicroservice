@@ -62,7 +62,7 @@ public class PaymentQueueSteps {
 
     }
 
-    @Then("the event {string} is published")
+    @Then("the event {string} is published2")
     public void theEventIsPublished(String event) {
 
         Event e = new Event(event, new Object[] { token });
