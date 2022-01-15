@@ -7,12 +7,11 @@ import dtu.application.PaymentServiceImplementation;
 import dtu.application.interfaces.*;
 import dtu.application.mocks.MockAccountService;
 import dtu.application.mocks.MockBankService;
-import dtu.application.mocks.MockReportService;
 import dtu.application.mocks.MockTokenService;
 import dtu.domain.Token;
 import dtu.infrastructure.InMemoryRepository;
 import dtu.presentation.PaymentDTO;
-import dtu.presentation.PaymentServiceEventWrapper2;
+import dtu.presentation.PaymentEventHandler;
 import dtu.presentation.RabbitmqStrings;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
@@ -43,7 +42,7 @@ public class PaymentRequestHandleSteps {
     IPaymentService paymentService = new PaymentServiceImplementation(bankService, new InMemoryRepository());
     MockTokenService tokenService = new MockTokenService();
     MessageQueue messageQueue = mock(MessageQueue.class);
-    PaymentServiceEventWrapper2 service = new PaymentServiceEventWrapper2(messageQueue, paymentService,tokenService);
+    PaymentEventHandler service = new PaymentEventHandler(messageQueue, paymentService);
     CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
 
@@ -166,7 +165,7 @@ public class PaymentRequestHandleSteps {
     // the tokenevent "TokenVerificationResponse" is sent from tokenService
     @When("the tokenevent {string} is sent from tokenService")
     public void theEventIsSentFromTokenService(String event_name) {
-        final boolean valid_token = service.doTokenVerificationResponseEvent(token.getUuid());
+        final boolean valid_token = service.doTokenVerificationResponseEvent(token);
         //TODO: Make sure that the token to payment mapping is saved in the payment service between calls
         //Correlation between payment -> token
         tokenEvent = new Event(event_name, new Object[] { new Token(customerId, payment.token, valid_token) });

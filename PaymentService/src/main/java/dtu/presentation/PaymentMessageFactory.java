@@ -1,15 +1,18 @@
 package dtu.presentation;
 
 
+import dtu.application.BankServiceWrapper;
 import dtu.application.PaymentServiceImplementation;
+import dtu.application.mocks.MockBankService;
+import dtu.application.mocks.MockTokenService;
 import dtu.infrastructure.InMemoryRepository;
 import dtu.ws.fastmoney.BankServiceService;
 import messaging.implementations.RabbitMqQueue;
 
 public class PaymentMessageFactory {
-    static PaymentServiceEventWrapper service = null;
+    static PaymentEventHandler service = null;
 
-    public PaymentServiceEventWrapper getService() {
+    public PaymentEventHandler getService() {
         // The singleton-pattern.
         // Ensure that there is at most
         // one instance of a PaymentService
@@ -29,7 +32,9 @@ public class PaymentMessageFactory {
 
         //TODO: Check how to add business logic here.
 
-        service = new PaymentServiceEventWrapper(messageQueue, new PaymentServiceImplementation(new BankServiceService().getBankServicePort(), new InMemoryRepository()));
+        service = new PaymentEventHandler(messageQueue,
+                new PaymentServiceImplementation(new BankServiceWrapper
+                        (new MockBankService()), new InMemoryRepository()));
         //new StudentRegistrationServiceAdapter(service, mq);
         return service;
     }
