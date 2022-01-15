@@ -1,20 +1,17 @@
 package dtu.services;
 
 
-import dtu.Application.BankServiceWrapper;
-import dtu.Application.IAccountService;
-import dtu.Application.ILogService;
-import dtu.Application.IPaymentService;
-import dtu.Application.IReportService;
-import dtu.Application.ITokenService;
-import dtu.Application.LocalPaymentRepository;
-import dtu.Application.MockAccountService;
-import dtu.Application.MockBankService;
-import dtu.Application.MockReportService;
-import dtu.Application.MockTokenService;
-import dtu.Application.PaymentServiceImplementation;
-import dtu.Presentation.PaymentServiceEventWrapper;
-import dtu.Presentation.RabbitmqStrings;
+import dtu.application.BankServiceWrapper;
+import dtu.application.IPaymentService;
+import dtu.application.PaymentServiceImplementation;
+import dtu.application.interfaces.*;
+import dtu.application.mocks.MockAccountService;
+import dtu.application.mocks.MockBankService;
+import dtu.application.mocks.MockReportService;
+import dtu.application.mocks.MockTokenService;
+import dtu.infrastructure.InMemoryRepository;
+import dtu.presentation.PaymentServiceEventWrapper;
+import dtu.presentation.RabbitmqStrings;
 import dtu.ws.fastmoney.BankService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -36,8 +33,8 @@ public class PaymentQueueSteps {
     BankService bs = new MockBankService();
     BankServiceWrapper bankService = new BankServiceWrapper(bs);
     IAccountService accountService = new MockAccountService();
-    IPaymentService paymentService = new PaymentServiceImplementation(new LocalPaymentRepository());
-    ITokenService tokenService = new MockTokenService();
+    IPaymentService paymentService = new PaymentServiceImplementation(bankService, new InMemoryRepository());
+    MockTokenService tokenService = new MockTokenService();
     ILogService logService;
     IReportService reportService = new MockReportService();
     String customerId;

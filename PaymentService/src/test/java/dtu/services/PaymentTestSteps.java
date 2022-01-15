@@ -1,5 +1,7 @@
 package dtu.services;
 
+import dtu.presentation.PaymentDTO;
+import dtu.presentation.PaymentDispatcher2;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,32 +12,32 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import dtu.Domain.Payment;
+
 
 public class PaymentTestSteps {
     MessageQueue queue = mock(MessageQueue.class);
-    dtu.Presentation.PaymentDispatcher2 PaymentDispatcher2 = new dtu.Presentation.PaymentDispatcher2(queue);
+    PaymentDispatcher2 paymentDispatcher2 = new PaymentDispatcher2(queue);
 
-    Payment payment = new Payment("1","2","3","4");
+    PaymentDTO payment = new PaymentDTO("1","2","3");
 
     @When("a {string} event for a payment is received")
     public void aEventForAPaymentIsReceived(String event2) {
         System.out.println("eventName2: "+ event2);
-        PaymentDispatcher2.handlePaymentRequested(new Event(event2,new Object[] {payment}));
+        paymentDispatcher2.handlePaymentRequested(new Event(event2,new Object[] {payment}));
     }
 
     @Then("the {string} event is sent")
     public void theEventIsSent(String eventName) {
-        Payment expected_payment = new Payment("1","2","3","4");
+        PaymentDTO payment = new PaymentDTO("1","2","3");
         System.out.println("eventName: "+ eventName);
-        var event = new Event("aPaymentRequested", new Object[] {expected_payment});
+        var event = new Event("aPaymentRequested", new Object[] {payment});
         verify(queue).publish(event);
         System.out.println("Success with using: \"aPaymentRequested\" and not the eventName: "+eventName);
     }
 
     @And("the payment is successful")
     public void thePaymentIsSuccuessful() {
-        Payment expected_payment = new Payment("1","2","3","4");
-        assertNotNull(expected_payment.getCustomerId());
+        PaymentDTO payment = new PaymentDTO("1","2","3");
+        assertNotNull(payment);
     }
 }

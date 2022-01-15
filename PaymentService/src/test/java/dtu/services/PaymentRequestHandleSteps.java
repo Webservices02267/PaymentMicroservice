@@ -1,9 +1,19 @@
 package dtu.services;
 
-import dtu.Application.*;
-import dtu.Domain.Payment;
-import dtu.Presentation.PaymentServiceEventWrapper2;
-import dtu.Presentation.RabbitmqStrings;
+
+import dtu.application.BankServiceWrapper;
+import dtu.application.IPaymentService;
+import dtu.application.PaymentServiceImplementation;
+import dtu.application.interfaces.*;
+import dtu.application.mocks.MockAccountService;
+import dtu.application.mocks.MockBankService;
+import dtu.application.mocks.MockReportService;
+import dtu.application.mocks.MockTokenService;
+import dtu.domain.Token;
+import dtu.infrastructure.InMemoryRepository;
+import dtu.presentation.PaymentDTO;
+import dtu.presentation.PaymentServiceEventWrapper2;
+import dtu.presentation.RabbitmqStrings;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.User;
@@ -15,7 +25,7 @@ import io.cucumber.java.en.When;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import javax.enterprise.inject.New;
+
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
@@ -30,19 +40,17 @@ public class PaymentRequestHandleSteps {
     BankServiceWrapper bankServiceWrapper = new BankServiceWrapper(bankService);
 
     IAccountService accountService = new MockAccountService();
-    IPaymentService paymentService = new PaymentServiceImplementation(bankService, new LocalPaymentRepository());
-    ITokenService tokenService = new MockTokenService();
-    ILogService logService;
-    IReportService reportService = new MockReportService();
+    IPaymentService paymentService = new PaymentServiceImplementation(bankService, new InMemoryRepository());
+    MockTokenService tokenService = new MockTokenService();
     MessageQueue messageQueue = mock(MessageQueue.class);
-    PaymentServiceEventWrapper2 service = new PaymentServiceEventWrapper2(messageQueue, paymentService,tokenService,bankServiceWrapper);
+    PaymentServiceEventWrapper2 service = new PaymentServiceEventWrapper2(messageQueue, paymentService,tokenService);
     CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
 
-    Payment payment;
+    PaymentDTO payment;
     String customerId;
     String merchantId;
-    String token;
+    Token token;
     String balance;
     String amount;
     boolean valid_payment;
@@ -50,8 +58,8 @@ public class PaymentRequestHandleSteps {
     @After
     public void removeCustomerAndMerchantFromBank() {
         try {
-            bankServiceWrapper.bs.retireAccount(customerId);
-            bankServiceWrapper.bs.retireAccount(merchantId);
+            bankServiceWrapper.retireAccount(customerId);
+            bankServiceWrapper.retireAccount(merchantId);
         } catch (BankServiceException_Exception e) {
             e.printStackTrace();
         }
@@ -74,17 +82,17 @@ public class PaymentRequestHandleSteps {
         user.setFirstName("customer");
 
         try {
-            customerId = bankServiceWrapper.bs.createAccountWithBalance(user, new BigDecimal(balance));
-            merchantId = bankServiceWrapper.bs.createAccountWithBalance(merchant, new BigDecimal(balance));
+            customerId = bankServiceWrapper.createAccountWithBalance(user, new BigDecimal(balance));
+            merchantId = bankServiceWrapper.createAccountWithBalance(merchant, new BigDecimal(balance));
 
         } catch (BankServiceException_Exception e) {
             e.printStackTrace();
         }
         accountService.registerCustomer(customerId);
-        token = tokenService.getToken(customerId);
+        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
         accountService.registerMerchant(merchantId);
 
-        payment = new Payment(merchantId, token, amount);
+        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
     }
 
     @Given("a valid PaymentRequest")
@@ -104,17 +112,17 @@ public class PaymentRequestHandleSteps {
         user.setFirstName("customer");
 
         try {
-            customerId = bankServiceWrapper.bs.createAccountWithBalance(user, new BigDecimal(balance));
-            merchantId = bankServiceWrapper.bs.createAccountWithBalance(merchant, new BigDecimal(balance));
+            customerId = bankServiceWrapper.createAccountWithBalance(user, new BigDecimal(balance));
+            merchantId = bankServiceWrapper.createAccountWithBalance(merchant, new BigDecimal(balance));
 
         } catch (BankServiceException_Exception e) {
             e.printStackTrace();
         }
         accountService.registerCustomer(customerId);
-        token = tokenService.getToken(customerId);
+        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
         accountService.registerMerchant(merchantId);
 
-        payment = new Payment(merchantId, token, amount);
+        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
     }
 
 
@@ -149,8 +157,8 @@ public class PaymentRequestHandleSteps {
     //And the tokenevent "TokenVerificationRequest" is published
     @And("the tokenevent {string} is published")
     public void theEventIsPublishedWithToken(String event_name) {
-        assertEquals(payment.getToken(),token);
-        Event e = new Event(event_name, new Object[] { payment.getToken() });
+        assertEquals(payment.token , token.getUuid());
+        Event e = new Event(event_name, new Object[] { payment.token });
         verify(messageQueue).publish(e);
     }
 
@@ -158,10 +166,10 @@ public class PaymentRequestHandleSteps {
     // the tokenevent "TokenVerificationResponse" is sent from tokenService
     @When("the tokenevent {string} is sent from tokenService")
     public void theEventIsSentFromTokenService(String event_name) {
-        final boolean valid_token = service.doTokenVerificationResponseEvent(token, customerId);
+        final boolean valid_token = service.doTokenVerificationResponseEvent(token.getUuid());
         //TODO: Make sure that the token to payment mapping is saved in the payment service between calls
         //Correlation between payment -> token
-        tokenEvent = new Event(event_name, new Object[] {customerId, payment.getToken(), valid_token });
+        tokenEvent = new Event(event_name, new Object[] { new Token(customerId, payment.token, valid_token) });
         verify(messageQueue).publish(tokenEvent);
     }
 
