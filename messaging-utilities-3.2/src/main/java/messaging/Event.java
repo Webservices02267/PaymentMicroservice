@@ -22,6 +22,7 @@ public class Event implements Serializable {
 	
 	public Event(String type) {
 		this.type = type;
+		this.arguments = new Object[] { "" };
 	}
 
 	public String getType() {
