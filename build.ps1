@@ -1,0 +1,1 @@
+Invoke-Expression "C:/'Program Files'/Git/bin/bash.exe -i -l completeBuild.sh"
