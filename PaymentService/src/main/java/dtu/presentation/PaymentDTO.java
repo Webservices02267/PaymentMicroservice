@@ -5,6 +5,7 @@ public class PaymentDTO {
     public String amount;
     public String token;
     public String description;
+    public String sessionId;
 
     public PaymentDTO() {
 

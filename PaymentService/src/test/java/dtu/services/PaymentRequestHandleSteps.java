@@ -10,10 +10,8 @@ import dtu.application.mocks.MockBankService;
 import dtu.application.mocks.MockTokenService;
 import dtu.domain.Token;
 import dtu.infrastructure.InMemoryRepository;
-import dtu.logic.PaymentSteps;
 import dtu.presentation.PaymentDTO;
 import dtu.presentation.PaymentEventHandler;
-import dtu.presentation.RabbitmqStrings;
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.User;
@@ -29,6 +27,7 @@ import messaging.MessageQueue;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -97,16 +96,19 @@ public class PaymentRequestHandleSteps {
         accountService.registerMerchant(merchantId);
 
         payment = new PaymentDTO(merchantId, token.getUuid(), amount);
+        payment.sessionId = "1";
+        payment.description = "this is cucumber";
     }
 
 
     //the paymentevent "PaymentRequest" is sent is sent from restService
     @When("the paymentevent {string} is sent from restService")
     public void theEventIsSent(String event_name) {
-        Event e = new Event(event_name, new Object[] { payment });
+        AtomicReference<Event> e = null;
         new Thread(() -> {
             //Start a payment from the restService and wait for the PaymentResponse
-            service.doPaymentRequestEvent(e);
+            assert false;
+            e.set(service.doPaymentRequestEvent(payment, "1"));
             //Check if the payment was successful or not
             final Boolean join = paymentAttempt.join();
             assertEquals(successfulPayment,join);
@@ -138,11 +140,11 @@ public class PaymentRequestHandleSteps {
     // the tokenevent "TokenVerificationResponse" is sent from tokenService
     @When("the tokenevent {string} is sent from tokenService")
     public void theEventIsSentFromTokenService(String event_name) {
-        final boolean valid_token = service.doTokenVerificationResponseEvent(token);
+        //final boolean valid_token = service.doGetCustomerIdFromTokenResponse(new Event(event_name, new Object[] {token})).getArgument(0, Token.class).getValidToken();
         //TODO: Make sure that the token to payment mapping is saved in the payment service between calls
         //Correlation between payment -> token
-        tokenEvent = new Event(event_name, new Object[] { new Token(customerId, payment.token, valid_token) });
-        verify(messageQueue).publish(tokenEvent);
+        //tokenEvent = new Event(event_name, new Object[] { new Token(customerId, payment.token, valid_token) });
+        //verify(messageQueue).publish(tokenEvent);
     }
 
     @And("the customerid is no longer valid in the bank")
@@ -162,7 +164,7 @@ public class PaymentRequestHandleSteps {
         //Type and topic is the same in this version of Huberts messaging util
         assertEquals(event_name,tokenEvent.getType());
 
-        bank_result = service.handleTokenVerificationResponse(tokenEvent);
+        //bank_result = service.doCustomerIdToAccountNumberResponse(tokenEvent);
     }
 
 
@@ -179,9 +181,9 @@ public class PaymentRequestHandleSteps {
 
         Event event;
         if(successfulPayment){
-            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] {true, return_str });
+            event = new Event(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE, new Object[] {true, return_str });
         }else{
-            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] {false, return_str });
+            event = new Event(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE, new Object[] {false, return_str });
             errorMessage = return_str;
         }
         verify(messageQueue).publish(event);

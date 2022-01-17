@@ -1,0 +1,15 @@
+Feature: Full payment flow
+  Scenario: Full payment
+    Given a valid Payment Request
+    When a payment request is published
+    Then a payment request is handled
+    And a merchant id to account number request is published
+    When a merchant id to account number response is published by account service
+    Then a merchant id to account number response is handled
+    And a get customer id from token request is published
+    When a get customer id from token response is published by token service
+    Then a get customer id from token response is handled
+    And a customer id to account number request is published
+    When a customer id to account number response is published by account service
+    Then a customer id to account number response is handled
+    And a payment response is published

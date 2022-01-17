@@ -1,5 +1,5 @@
 Feature: Payments via message queues
-
+  @ignore
   Scenario: Payment request and response happy
     Given a valid PaymentRequest
     #create event and Add event (PaymentRequest) to queue through wrapper
@@ -18,6 +18,7 @@ Feature: Payments via message queues
     Then the paymentevent "PaymentResponse" is published
     And the payment transfer succeeded
 
+  @ignore
   Scenario: Payment invalid customer id from token service (customer has been deleted from the bank in the meantime)
     Given a valid PaymentRequest
     #create event and Add event (PaymentRequest) to queue through wrapper
