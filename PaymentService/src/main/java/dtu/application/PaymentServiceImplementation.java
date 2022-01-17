@@ -42,10 +42,6 @@ public class PaymentServiceImplementation implements IPaymentService {
         }
     }
 
-    public boolean pay(PaymentDTO dto, Token token) throws NegativeAmountException, ArgumentNullException, AmountIsNotANumberException, InvalidTokenException, DebtorHasNoBankAccountException, CreditorHasNoBankAccountException, InsufficientBalanceException {
-        return pay(new Payment.PaymentBuilder().amount(dto.amount).creditor(dto.mid).debtor(token.getCustomerId()).token(token).build());
-    }
-
 
 
     @Override

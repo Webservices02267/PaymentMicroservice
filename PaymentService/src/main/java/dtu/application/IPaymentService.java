@@ -12,5 +12,4 @@ public interface IPaymentService {
 
     Collection<Payment> getPayments();
 
-    boolean pay(PaymentDTO dto, Token token) throws NegativeAmountException, ArgumentNullException, AmountIsNotANumberException, InvalidTokenException, DebtorHasNoBankAccountException, CreditorHasNoBankAccountException, InsufficientBalanceException;
 }
