@@ -23,7 +23,7 @@ Feature: Full payment flow
     And a merchant id to account number request is published
     When a merchant id to account number response is published by account service
     Then a merchant id to account number response is handled
-    And the merchant id to account number response error message is "Creditor account is not valid"
+    And the merchant id to account number response error message is "No merchant exists with the provided id"
     And a payment response is published
     And the payment response message is "Creditor account is not valid"
 

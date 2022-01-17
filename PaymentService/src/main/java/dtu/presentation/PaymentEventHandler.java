@@ -58,9 +58,6 @@ public class PaymentEventHandler {
         this.paymentService = paymentService;
         this.messageQueue.addHandler(HANDLE.PAYMENT_STATUS_REQUEST, this::handlePaymentStatusRequest);
         this.messageQueue.addHandler(HANDLE.PAYMENT_REQUEST, this::handlePaymentRequest);
-        this.messageQueue.addHandler(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE, this::handleMerchantIdToAccountNumberResponse);
-        this.messageQueue.addHandler(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE, this::handleGetCustomerIdFromTokenResponse);
-        this.messageQueue.addHandler(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE, this::handleCustomerIdToAccountNumberResponse);
     }
 
     public final Map<String, Session> sessions = new ConcurrentHashMap<>();
@@ -89,34 +86,51 @@ public class PaymentEventHandler {
         sessions.put(payment.sessionId, session);
         Event event = new Event(PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST, new Object[]{session.merchantId, payment.sessionId});
         session.publishedEvents.put(PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST, event);
+        this.messageQueue.addHandler(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + payment.sessionId, this::handleMerchantIdToAccountNumberResponse);
         messageQueue.publish(event);
     }
 
     public void handleMerchantIdToAccountNumberResponse(Event e) {
-
+        boolean success = e.getArgument(0, boolean.class);
         var sid = e.getType().split("\\.")[1];
         var session = sessions.get(sid);
-        session.merchantAccountNumber = e.getArgument(0, String.class);
+        if (!success) {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Creditor account is not valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+        }
+        session.merchantAccountNumber = e.getArgument(1, String.class);
         Event event = new Event(PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST, new Object[]{session.token, sid});
         session.publishedEvents.put(PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST, event);
+        this.messageQueue.addHandler(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, this::handleGetCustomerIdFromTokenResponse);
         messageQueue.publish(event);
     }
 
     public void handleGetCustomerIdFromTokenResponse(Event e) {
+        boolean success = e.getArgument(0, boolean.class);
         var sid = e.getType().split("\\.")[1];
         var session = sessions.get(sid);
-        session.token = e.getArgument(0, Token.class);
+        if (!success) {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Token must be valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+        }
+        session.token = e.getArgument(1, Token.class);
         session.customerId = session.token.getCustomerId();
         session.tokenId = session.token.getUuid();
         Event event = new Event(PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST, new Object[]{session.customerId, sid});
         session.publishedEvents.put(PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST, event);
+        this.messageQueue.addHandler(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, this::handleCustomerIdToAccountNumberResponse);
         messageQueue.publish(event);
     }
 
     public void handleCustomerIdToAccountNumberResponse(Event e) {
         var sid = e.getType().split("\\.")[1];
         var session = sessions.get(sid);
-        session.customerAccountNumber = e.getArgument(0, String.class);
+        boolean success = e.getArgument(0, boolean.class);
+        if (!success) {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Token must be valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+        }
+        session.customerAccountNumber = e.getArgument(1, String.class);
         Event event;
         try {
             var payment = new Payment.PaymentBuilder()
@@ -143,6 +157,7 @@ public class PaymentEventHandler {
     /*
     MOCK
      */
+    //TODO MOVE PUBLISH PAYMENT RESPONSE TO HANDLERS
     public Event doPaymentRequestEvent(PaymentDTO paymentDTO, String sid) {
         var e = new Event(HANDLE.PAYMENT_REQUEST + "." + sid, new Object[] {paymentDTO});
         messageQueue.publish(e);
@@ -153,10 +168,9 @@ public class PaymentEventHandler {
         Event e;
         var session = sessions.get(sid);
         if (accountService.hasMerchant(session.merchantId)) {
-            e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+            e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {true, accountNumber});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Creditor account is not valid"});
-            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+            e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {false, "No merchant exists with the provided id"});
         }
         messageQueue.publish(e);
         return e;
@@ -167,10 +181,9 @@ public class PaymentEventHandler {
         var session = sessions.get(sid);
         session.token = tokenService.getVerifiedToken(session.tokenId);
         if (session.token.getValidToken()) {
-            e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {session.token});
+            e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {true, session.token});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Token must be valid"});
-            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+            e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {false, "Invalid token"});
         }
         messageQueue.publish(e);
         return e;
@@ -180,10 +193,9 @@ public class PaymentEventHandler {
         Event e;
         var session = sessions.get(sid);
         if (accountService.hasCustomer(session.customerId)) {
-            e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+            e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {true, accountNumber});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Debtor account is not valid"});
-            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+            e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {false, "No customer exists with the provided id"});
         }
         messageQueue.publish(e);
         return e;
