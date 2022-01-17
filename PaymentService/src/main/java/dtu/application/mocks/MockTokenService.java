@@ -10,7 +10,7 @@ import dtu.infrastructure.LocalTokenRepository;
 public class MockTokenService  {
 
 
-    private LocalTokenRepository tokenRepository = new LocalTokenRepository();
+    private final LocalTokenRepository tokenRepository = new LocalTokenRepository();
 
 
     public MockTokenService() {

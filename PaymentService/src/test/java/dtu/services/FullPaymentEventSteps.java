@@ -41,6 +41,10 @@ public class FullPaymentEventSteps {
     MockTokenService tokenService = new MockTokenService();
     MessageQueue messageQueue = mock(MessageQueue.class);
     PaymentEventHandler service = new PaymentEventHandler(messageQueue, paymentService);
+    public FullPaymentEventSteps() {
+        service.tokenService = tokenService;
+        service.accountService = accountService;
+    }
     CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
     PaymentDTO payment;
@@ -106,7 +110,7 @@ public class FullPaymentEventSteps {
 
         sid = UUID.randomUUID().toString();
         payment.sessionId = sid;
-        payment.description = "this is cucumber";
+        payment.description = "all your base are belong to cucumber";
     }
 
     @When("a payment request is published")
@@ -177,5 +181,27 @@ public class FullPaymentEventSteps {
     @And("the payment response message is {string}")
     public void thePaymentResponseMessageIs(String message) {
         assertEquals(message, paymentResponseEvent.getArgument(1, String.class));
+    }
+
+    @And("merchant id is set to {string} and the payment is invalidated")
+    public void merchantIdIsSetToAndThePaymentIsInvalidated(String arg0) {
+        merchantId = arg0;
+        service.sessions.get(sid).merchantId = arg0;
+    }
+
+    @And("the merchant id to account number response error message is {string}")
+    public void theMerchantIdToAccountNumberResponseErrorMessageIs(String arg0) {
+        assertEquals(arg0, merchantIdToAccountNumberResponseEvent.getArgument(0, String.class));
+    }
+
+    @And("the customer id to account number response error message is {string}")
+    public void theCustomerIdToAccountNumberResponseErrorMessageIs(String arg0) {
+        assertEquals(arg0, customerIdToAccountNumberResponseEvent.getArgument(0, String.class));
+    }
+
+    @And("customer id is set to {string} and the payment is invalidated")
+    public void customerIdIsSetToAndThePaymentIsInvalidated(String arg0) {
+        customerId = arg0;
+        service.sessions.get(sid).customerId = arg0;
     }
 }

@@ -23,4 +23,9 @@ public class MockAccountService implements IAccountService {
     public boolean hasCustomer(String customerId) {
         return customers.contains(customerId);
     }
+
+    @Override
+    public boolean hasMerchant(String merchantId) {
+        return merchants.contains(merchantId);
+    }
 }

@@ -6,4 +6,5 @@ public interface IAccountService {
     void registerMerchant(String merchantId);
 
     boolean hasCustomer(String customerId);
+    boolean hasMerchant(String merchantId);
 }

@@ -1,6 +1,9 @@
 package dtu.presentation;
 
 import dtu.application.IPaymentService;
+import dtu.application.interfaces.IAccountService;
+import dtu.application.mocks.MockAccountService;
+import dtu.application.mocks.MockTokenService;
 import dtu.domain.Payment;
 import dtu.domain.Token;
 import dtu.exceptions.*;
@@ -46,6 +49,8 @@ public class PaymentEventHandler {
 
     private final MessageQueue messageQueue;
     private final IPaymentService paymentService;
+    public IAccountService accountService;
+    public MockTokenService tokenService;
 
 
     public PaymentEventHandler(MessageQueue messageQueue, IPaymentService paymentService) {
@@ -88,6 +93,7 @@ public class PaymentEventHandler {
     }
 
     public void handleMerchantIdToAccountNumberResponse(Event e) {
+
         var sid = e.getType().split("\\.")[1];
         var session = sessions.get(sid);
         session.merchantAccountNumber = e.getArgument(0, String.class);
@@ -144,19 +150,40 @@ public class PaymentEventHandler {
     }
 
     public Event doMerchantIdToAccountNumberResponse(String accountNumber, String sid) {
-        var e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+        Event e;
+        var session = sessions.get(sid);
+        if (accountService.hasMerchant(session.merchantId)) {
+            e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+        } else {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Creditor account is not valid"});
+        }
         messageQueue.publish(e);
         return e;
     }
 
     public Event doGetCustomerIdFromTokenResponse(Token token, String sid) {
-        var e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {token});
+        Event e;
+        var session = sessions.get(sid);
+        session.token = tokenService.getVerifiedToken(session.tokenId);
+        if (session.token.getValidToken()) {
+            e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {session.token});
+        } else {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Token must be valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+        }
         messageQueue.publish(e);
         return e;
     }
 
     public Event doCustomerIdToAccountNumberResponse(String accountNumber, String sid) {
-        var e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+        Event e;
+        var session = sessions.get(sid);
+        if (accountService.hasCustomer(session.customerId)) {
+            e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
+        } else {
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Debtor account is not valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
+        }
         messageQueue.publish(e);
         return e;
     }
