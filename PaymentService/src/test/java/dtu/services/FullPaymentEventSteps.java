@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -121,7 +122,7 @@ public class FullPaymentEventSteps {
 
     @And("a merchant id to account number request is published")
     public void aMerchantIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get("1").publishedEvents.containsKey(PaymentEventHandler.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a merchant id to account number response is published by account service")
@@ -137,7 +138,7 @@ public class FullPaymentEventSteps {
 
     @And("a get customer id from token request is published")
     public void aGetCustomerIdFromTokenRequestIsPublished() {
-        assertTrue(service.sessions.get("1").publishedEvents.containsKey(PaymentEventHandler.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST));
     }
 
     @When("a get customer id from token response is published by token service")
@@ -153,7 +154,7 @@ public class FullPaymentEventSteps {
 
     @And("a customer id to account number request is published")
     public void aCustomerIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get("1").publishedEvents.containsKey(PaymentEventHandler.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a customer id to account number response is published by account service")
@@ -169,6 +170,12 @@ public class FullPaymentEventSteps {
 
     @And("a payment response is published")
     public void aPaymentResponseIsPublished() {
-        assertTrue(service.sessions.get("1").publishedEvents.containsKey(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE));
+        paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE);
+    }
+
+    @And("the payment response message is {string}")
+    public void thePaymentResponseMessageIs(String message) {
+        assertEquals(message, paymentResponseEvent.getArgument(1, String.class));
     }
 }

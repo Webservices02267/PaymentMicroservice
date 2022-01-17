@@ -15,10 +15,6 @@ import static org.junit.Assert.assertNull;
 
 public class PaymentEventHandler {
 
-    /*
-    NB: If strings are changed remember to change them in the .feature file as well
-     */
-
     public static class HANDLE {
         public static final String PAYMENT_STATUS_REQUEST = "PaymentStatusRequest";
         public static final String PAYMENT_REQUEST = "PaymentRequest";
@@ -125,8 +121,9 @@ public class PaymentEventHandler {
                     .token(session.token)
                     .build();
             paymentService.pay(payment);
-            event = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[]{ true, "everything ok"});
-        } catch (NegativeAmountException | ArgumentNullException | AmountIsNotANumberException | InvalidTokenException | DebtorHasNoBankAccountException | CreditorHasNoBankAccountException | InsufficientBalanceException ex) {
+            event = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[]{ true, "ok"});
+        } catch (NegativeAmountException | ArgumentNullException | AmountIsNotANumberException | InvalidTokenException
+                | DebtorHasNoBankAccountException | CreditorHasNoBankAccountException | InsufficientBalanceException ex) {
             event = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[]{ false, ex.getMessage() });
         }
         session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, event);
@@ -165,7 +162,11 @@ public class PaymentEventHandler {
     }
 
 
+
+
     //This is done by the Rest Service
+
+
 
 
     //This is done by the TokenService

@@ -13,3 +13,4 @@ Feature: Full payment flow
     When a customer id to account number response is published by account service
     Then a customer id to account number response is handled
     And a payment response is published
+    And the payment response message is "ok"
