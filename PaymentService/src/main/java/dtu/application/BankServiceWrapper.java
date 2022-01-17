@@ -60,13 +60,13 @@ public class BankServiceWrapper {
         try {
             debtor = soapBank.getAccount(payment.getDebtor());
         } catch (BankServiceException_Exception e) {
-            throw new DebtorHasNoBankAccountException();
+            throw new DebtorHasNoBankAccountException("Debtor account id is not valid");
         }
 
         try {
             soapBank.getAccount(payment.getCreditor());
         } catch (BankServiceException_Exception e) {
-            throw new CreditorHasNoBankAccountException();
+            throw new CreditorHasNoBankAccountException("Creditor account id is not valid");
         }
 
         if (debtor.getBalance().compareTo(payment.getAmount()) < 0) throw new InsufficientBalanceException("Insufficient balance on debtor account");

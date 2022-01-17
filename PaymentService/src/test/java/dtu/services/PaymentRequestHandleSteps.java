@@ -10,6 +10,7 @@ import dtu.application.mocks.MockBankService;
 import dtu.application.mocks.MockTokenService;
 import dtu.domain.Token;
 import dtu.infrastructure.InMemoryRepository;
+import dtu.logic.PaymentSteps;
 import dtu.presentation.PaymentDTO;
 import dtu.presentation.PaymentEventHandler;
 import dtu.presentation.RabbitmqStrings;
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -45,14 +47,16 @@ public class PaymentRequestHandleSteps {
     PaymentEventHandler service = new PaymentEventHandler(messageQueue, paymentService);
     CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
-
     PaymentDTO payment;
+
     String customerId;
     String merchantId;
     Token token;
     String balance;
     String amount;
     boolean valid_payment;
+    private String errorMessage;
+    private boolean successfulPayment = true;;
 
     @After
     public void removeCustomerAndMerchantFromBank() {
@@ -64,35 +68,6 @@ public class PaymentRequestHandleSteps {
         }
     }
 
-    @Given("an invalid PaymentRequest")
-    public void anInvalidPaymentRequest() {
-        System.out.println("Doing a valid payment request");
-        valid_payment = false;
-
-        balance = "10";
-        amount = "100";
-        var merchant = new User();
-        merchant.setCprNumber("135413-0505");
-        merchant.setLastName("merchant");
-        merchant.setFirstName("merchant");
-        var user = new User();
-        user.setCprNumber("135643-1337");
-        user.setLastName("customer");
-        user.setFirstName("customer");
-
-        try {
-            customerId = bankServiceWrapper.createAccountWithBalance(user, new BigDecimal(balance));
-            merchantId = bankServiceWrapper.createAccountWithBalance(merchant, new BigDecimal(balance));
-
-        } catch (BankServiceException_Exception e) {
-            e.printStackTrace();
-        }
-        accountService.registerCustomer(customerId);
-        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
-        accountService.registerMerchant(merchantId);
-
-        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
-    }
 
     @Given("a valid PaymentRequest")
     public void aValidPaymentRequest() {
@@ -133,15 +108,15 @@ public class PaymentRequestHandleSteps {
             //Start a payment from the restService and wait for the PaymentResponse
             service.doPaymentRequestEvent(e);
             //Check if the payment was successful or not
-            assertEquals(valid_payment,paymentAttempt.join());
+            final Boolean join = paymentAttempt.join();
+            assertEquals(successfulPayment,join);
 
         }).start();
 
         //Avoid Race Condition when on linux
-        try{Thread.sleep(10);}catch(InterruptedException ee){System.out.println(ee);}
+        try{Thread.sleep(50);}catch(InterruptedException ee){System.out.println(ee);}
 
     }
-
     //Then the paymentevent "PaymentRequest" is received
     @Then("the paymentevent {string} is received")
     public void theEventIsReceived(String event_name) {
@@ -152,15 +127,13 @@ public class PaymentRequestHandleSteps {
         //Then we handle the paymentRequest and send the "TokenVerificationRequest"
         service.handlePaymentRequest(e);
     }
-
     //And the tokenevent "TokenVerificationRequest" is published
     @And("the tokenevent {string} is published")
     public void theEventIsPublishedWithToken(String event_name) {
-        assertEquals(payment.token , token.getUuid());
+        //assertEquals(payment.token , token.getUuid());
         Event e = new Event(event_name, new Object[] { payment.token });
         verify(messageQueue).publish(e);
     }
-
     Event tokenEvent;
     // the tokenevent "TokenVerificationResponse" is sent from tokenService
     @When("the tokenevent {string} is sent from tokenService")
@@ -170,6 +143,15 @@ public class PaymentRequestHandleSteps {
         //Correlation between payment -> token
         tokenEvent = new Event(event_name, new Object[] { new Token(customerId, payment.token, valid_token) });
         verify(messageQueue).publish(tokenEvent);
+    }
+
+    @And("the customerid is no longer valid in the bank")
+    public void theCustomeridIsNoLongerValidInTheBank() {
+        final boolean valid_token =tokenEvent.getArgument(0,Token.class).getValidToken();
+        valid_payment = false;
+        customerId = "1"; //'Account ids' in the bank are UUIDs, so sending a '1' should always be invalid
+        //This simulates that our token service has a token->'customer id', that is no longer used in the SOAP bank
+        tokenEvent = new Event(tokenEvent.getType(), new Object[] { new Token(customerId, payment.token, valid_token) });
     }
 
 
@@ -183,23 +165,43 @@ public class PaymentRequestHandleSteps {
         bank_result = service.handleTokenVerificationResponse(tokenEvent);
     }
 
+
     //the paymentevent "PaymentResponse" is published
     @Then("the paymentevent {string} is published")
     public void thePaymenteventIsPublished(String event_name) {
-        Event event;
 
-        boolean aBoolean= bank_result.getArgument(0, Boolean.class);
+        successfulPayment= bank_result.getArgument(0, Boolean.class);
         String return_str= bank_result.getArgument(1, String.class);
 
-        if(aBoolean){
-            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] { aBoolean, return_str });
+        //Check if the type/topic is a "PaymentResponse" event
+        assertEquals(bank_result.getType(), event_name);
+
+
+        Event event;
+        if(successfulPayment){
+            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] {true, return_str });
         }else{
-            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] { aBoolean, return_str });
+            event = new Event(RabbitmqStrings.PAYMENT_RESPONSE, new Object[] {false, return_str });
+            errorMessage = return_str;
         }
         verify(messageQueue).publish(event);
-        paymentAttempt.complete(aBoolean);
-        System.out.println("A "+valid_payment+" payment was done");
+        paymentAttempt.complete(successfulPayment);
+
+        System.out.println("A payment was done with the response: \""
+                +valid_payment+"\" and return str: \""+return_str+"\"");
     }
 
+    @And("the payment transfer failed")
+    public void thePaymentTransferFailed() {
+        assertFalse(successfulPayment);
+    }
+    @And("the payment transfer succeeded")
+    public void thePaymentSucceeded() {
+        assertTrue(successfulPayment);
+    }
 
+    @And("the error message from the transfer is {string}")
+    public void theErrorMessageIs(String message) {
+        assertEquals(message, errorMessage);
+    }
 }

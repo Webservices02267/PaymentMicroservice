@@ -36,8 +36,8 @@ public class PaymentSteps {
     String customerId;
     String merchantId;
     Token token;
-    boolean successfulPayment = false;
-    String errorMessage;
+    public boolean successfulPayment = false;
+    public String errorMessage;
 
     @After
     public void removeCustomerAndMerchantFromBank() {
@@ -142,7 +142,7 @@ public class PaymentSteps {
 
     @And("the error message is {string}")
     public void theErrorMessageIs(String message) {
-        assertEquals(message, this.errorMessage);
+        assertEquals(message, errorMessage);
     }
 
     @And("the token is invalid")
