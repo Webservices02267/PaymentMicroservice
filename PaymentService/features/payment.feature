@@ -18,6 +18,7 @@ Feature: Payment
     When the customer retires their bank account
     When the merchant initiates a payment for "100" kr by the customer
     Then the payment failed
+    And the error message is "Debtor account id is not valid"
     And the balance of the merchant at the bank is "2000" kr
 
   Scenario: Merchant deleted their bank account after registering for DTU pay
@@ -28,6 +29,7 @@ Feature: Payment
     When the merchant retires their bank account
     When the merchant initiates a payment for "100" kr by the customer
     Then the payment failed
+    And the error message is "Creditor account id is not valid"
     And the balance of the customer at the bank is "1000" kr
 
   Scenario: The token is invalid
