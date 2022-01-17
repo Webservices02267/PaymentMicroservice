@@ -20,6 +20,11 @@ public class PaymentEventHandler {
         this.paymentService = paymentService;
         this.messageQueue.addHandler(RabbitmqStrings.PAYMENT_REQUEST, this::handlePaymentRequest);
         this.messageQueue.addHandler(RabbitmqStrings.TOKEN_VERIFICATION_RESPONSE, this::handleTokenVerificationResponse);
+        this.messageQueue.addHandler(RabbitmqStrings.PAYMENT_STATUS_REQUEST, this::handlePaymentStatusRequest);
+    }
+
+    private void handlePaymentStatusRequest(Event event) {
+        messageQueue.publish(new Event(RabbitmqStrings.PAYMENT_STATUS_RESPONSE, new Object[] {"All good"}));
     }
 
     //This is done by the Rest Service
@@ -69,5 +74,7 @@ public class PaymentEventHandler {
         messageQueue.publish(event);
         return event;
     }
+
+
 }
 
