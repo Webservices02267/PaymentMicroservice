@@ -106,15 +106,17 @@ public class FullPaymentEventSteps {
         token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
         accountService.registerMerchant(merchantId);
 
-        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
 
-        sid = UUID.randomUUID().toString();
-        payment.sessionId = sid;
-        payment.description = "all your base are belong to cucumber";
+
+
     }
 
     @When("a payment request is published")
     public void aPaymentRequestIsPublished() {
+        sid = UUID.randomUUID().toString();
+        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
+        payment.sessionId = sid;
+        payment.description = "all your base are belong to cucumber";
         validPaymentRequestEvent = service.doPaymentRequestEvent(payment, sid);
     }
 
@@ -158,7 +160,8 @@ public class FullPaymentEventSteps {
 
     @And("a customer id to account number request is published")
     public void aCustomerIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
+        var publishedEvents = service.sessions.get(sid).publishedEvents;
+        assertTrue(publishedEvents.containsKey(PaymentEventHandler.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a customer id to account number response is published by account service")
@@ -174,7 +177,8 @@ public class FullPaymentEventSteps {
 
     @And("a payment response is published")
     public void aPaymentResponseIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE));
+        var publishedEvents = service.sessions.get(sid).publishedEvents;
+        assertTrue(publishedEvents.containsKey(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE));
         paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE);
     }
 
@@ -186,22 +190,22 @@ public class FullPaymentEventSteps {
     @And("merchant id is set to {string} and the payment is invalidated")
     public void merchantIdIsSetToAndThePaymentIsInvalidated(String arg0) {
         merchantId = arg0;
-        service.sessions.get(sid).merchantId = arg0;
+
     }
 
     @And("the merchant id to account number response error message is {string}")
     public void theMerchantIdToAccountNumberResponseErrorMessageIs(String arg0) {
-        assertEquals(arg0, merchantIdToAccountNumberResponseEvent.getArgument(0, String.class));
+        assertEquals(arg0, merchantIdToAccountNumberResponseEvent.getArgument(1, String.class));
     }
 
     @And("the customer id to account number response error message is {string}")
     public void theCustomerIdToAccountNumberResponseErrorMessageIs(String arg0) {
-        assertEquals(arg0, customerIdToAccountNumberResponseEvent.getArgument(0, String.class));
+        assertEquals(arg0, customerIdToAccountNumberResponseEvent.getArgument(1, String.class));
     }
 
     @And("customer id is set to {string} and the payment is invalidated")
     public void customerIdIsSetToAndThePaymentIsInvalidated(String arg0) {
         customerId = arg0;
-        service.sessions.get(sid).customerId = arg0;
+
     }
 }

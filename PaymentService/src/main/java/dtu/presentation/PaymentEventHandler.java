@@ -34,7 +34,7 @@ public class PaymentEventHandler {
         public static final String PAYMENT_RESPONSE = "PaymentResponse";
     }
 
-    public class Session {
+    public static class Session {
         public String merchantId;
         public String merchantAccountNumber;
         public String customerId;
@@ -155,7 +155,8 @@ public class PaymentEventHandler {
         if (accountService.hasMerchant(session.merchantId)) {
             e = new Event(HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Creditor account is not valid"});
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Creditor account is not valid"});
+            session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
         }
         messageQueue.publish(e);
         return e;
@@ -168,7 +169,7 @@ public class PaymentEventHandler {
         if (session.token.getValidToken()) {
             e = new Event(HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE + "." + sid, new Object[] {session.token});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Token must be valid"});
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Token must be valid"});
             session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
         }
         messageQueue.publish(e);
@@ -181,7 +182,7 @@ public class PaymentEventHandler {
         if (accountService.hasCustomer(session.customerId)) {
             e = new Event(HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, new Object[] {accountNumber});
         } else {
-            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {"Debtor account is not valid"});
+            e = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[] {false, "Debtor account is not valid"});
             session.publishedEvents.put(PUBLISH.PAYMENT_RESPONSE, e);
         }
         messageQueue.publish(e);

@@ -27,20 +27,21 @@ Feature: Full payment flow
     And a payment response is published
     And the payment response message is "Creditor account is not valid"
 
-  Scenario: Full payment but invalid customer id
-    Given a valid Payment Request
-    And customer id is set to "customer" and the payment is invalidated
-    When a payment request is published
-    Then a payment request is handled
-    And a merchant id to account number request is published
-    When a merchant id to account number response is published by account service
-    Then a merchant id to account number response is handled
-    And a get customer id from token request is published
-    When a get customer id from token response is published by token service
-    Then a get customer id from token response is handled
-    And a customer id to account number request is published
-    When a customer id to account number response is published by account service
-    Then a customer id to account number response is handled
-    And the customer id to account number response error message is "Debtor account is not valid"
-    And a payment response is published
-    And the payment response message is "Debtor account is not valid"
+    @ignore #Beslut om det skal fjernes
+    Scenario: Full payment but invalid customer id
+      Given a valid Payment Request
+      And customer id is set to "customer" and the payment is invalidated
+      When a payment request is published
+      Then a payment request is handled
+      And a merchant id to account number request is published
+      When a merchant id to account number response is published by account service
+      Then a merchant id to account number response is handled
+      And a get customer id from token request is published
+      When a get customer id from token response is published by token service
+      Then a get customer id from token response is handled
+      And a customer id to account number request is published
+      When a customer id to account number response is published by account service
+      Then a customer id to account number response is handled
+      And the customer id to account number response error message is "Debtor account is not valid"
+      And a payment response is published
+      And the payment response message is "Debtor account is not valid"
