@@ -101,7 +101,7 @@ public class PaymentRequestHandleSteps {
 
 
     //the paymentevent "PaymentRequest" is sent is sent from restService
-    @When("the paymentevent {string} is sent is sent from restService")
+    @When("the paymentevent {string} is sent from restService")
     public void theEventIsSent(String event_name) {
         Event e = new Event(event_name, new Object[] { payment });
         new Thread(() -> {
