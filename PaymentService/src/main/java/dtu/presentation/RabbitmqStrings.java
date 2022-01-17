@@ -8,5 +8,6 @@ public class RabbitmqStrings {
     public static final String TOKEN_VERIFICATION_REQUEST = "TokenVerificationRequest";
     public static final String TOKEN_VERIFICATION_RESPONSE = "TokenVerificationResponse";
     public static final String PAYMENT_RESPONSE = "PaymentResponse";
-
+    public static final String PAYMENT_STATUS_REQUEST = "PaymentStatusRequest";
+    public static final String PAYMENT_STATUS_RESPONSE = "PaymentStatusResponse";
 }
