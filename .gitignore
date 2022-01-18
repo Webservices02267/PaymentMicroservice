@@ -62,3 +62,4 @@ nb-configuration.xml
 
 # Local environment
 .env
+Messaging-utilities
