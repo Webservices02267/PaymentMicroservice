@@ -141,6 +141,8 @@ public class PaymentEventHandler {
                     .token(session.token)
                     .build();
             paymentService.pay(payment);
+            var logEvent = new Event("LogPaymentRequest", new Object[]{new PaymentLogDTO(payment)});
+            messageQueue.publish(logEvent);
             event = new Event(PUBLISH.PAYMENT_RESPONSE + "." + sid, new Object[]{ true, "ok"});
         } catch (NegativeAmountException | ArgumentNullException | AmountIsNotANumberException | InvalidTokenException
                 | DebtorHasNoBankAccountException | CreditorHasNoBankAccountException | InsufficientBalanceException ex) {
@@ -150,7 +152,24 @@ public class PaymentEventHandler {
         messageQueue.publish(event);
     }
 
+    public static class PaymentLogDTO {
 
+        public PaymentLogDTO() {
+
+        }
+
+        public PaymentLogDTO(Payment payment) {
+            this.customerId = payment.getDebtor();
+            this.merchantId = payment.getCreditor();
+            this.token = payment.getToken().getUuid();
+            this.amount = payment.getAmount().toString();
+        }
+
+        public String customerId;
+        public String merchantId;
+        public String token;
+        public String amount;
+    }
 
 
 

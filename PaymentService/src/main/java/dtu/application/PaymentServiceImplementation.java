@@ -5,6 +5,7 @@ package dtu.application;
 import java.util.Collection;
 
 import dtu.domain.Payment;
+import dtu.domain.Report;
 import dtu.domain.Token;
 import dtu.exceptions.*;
 import dtu.infrastructure.interfaces.IPaymentRepository;
@@ -48,5 +49,8 @@ public class PaymentServiceImplementation implements IPaymentService {
     public Collection<Payment> getPayments() {
         return paymentRepository.getPayments();
     }
+
+   
+
 
 }
