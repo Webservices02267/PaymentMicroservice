@@ -57,7 +57,8 @@ public class PaymentEventHandler {
     HANDLERS
      */
     public void handlePaymentStatusRequest(Event event) {
-        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE, new EventResponse(null, true, null, "OK")));
+        String sessionId = event.getArgument(0, String.class);
+        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + sessionId, new EventResponse(sessionId, true, null, "OK")));
     }
     // This is done by Payment service (This service)
     /**
