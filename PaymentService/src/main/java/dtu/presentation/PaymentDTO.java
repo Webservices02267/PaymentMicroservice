@@ -1,7 +1,7 @@
 package dtu.presentation;
 
 public class PaymentDTO {
-    public String mid;
+    public String merchantId;
     public String amount;
     public String token;
     public String description;
@@ -12,7 +12,7 @@ public class PaymentDTO {
     }
 
     public PaymentDTO(String merchantId, String token, String amount) {
-        this.mid = merchantId;
+        this.merchantId = merchantId;
         this.token = token;
         this.amount = amount;
     }

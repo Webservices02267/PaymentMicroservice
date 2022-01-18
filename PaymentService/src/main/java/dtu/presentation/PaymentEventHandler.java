@@ -2,7 +2,6 @@ package dtu.presentation;
 
 import dtu.application.IPaymentService;
 import dtu.application.interfaces.IAccountService;
-import dtu.application.mocks.MockAccountService;
 import dtu.application.mocks.MockTokenService;
 import dtu.domain.Payment;
 import dtu.domain.Token;
@@ -57,8 +56,8 @@ public class PaymentEventHandler {
     HANDLERS
      */
     public void handlePaymentStatusRequest(Event event) {
-        String sessionId = event.getArgument(0, String.class);
-        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + sessionId, new EventResponse(sessionId, true, null, "OK")));
+        var eventResponse = event.getArgument(0, EventResponse.class);
+        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + eventResponse.getSessionId(), new EventResponse(eventResponse.getSessionId(), true, null, "OK")));
     }
     // This is done by Payment service (This service)
     /**
@@ -66,19 +65,20 @@ public class PaymentEventHandler {
      * @param e contains MerchantId, TokenId, Amount, Description, SessionId
      */
     public void handlePaymentRequest(Event e) {
-
+        System.err.println("RECEIVED EVENT " + e);
         var er = e.getArgument(0, EventResponse.class);
         var sid = er.getSessionId();
         var payment = er.getArgument(0, PaymentDTO.class);
         var session = new Session();
-        session.merchantId = payment.mid;
+        session.merchantId = payment.merchantId;
         session.tokenId = payment.token;
         session.amount = payment.amount;
         session.description = payment.description;
-        sessions.put(payment.sessionId, session);
+        sessions.put(er.getSessionId(), session);
         Event event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST, new EventResponse(sid, true, null, session.merchantId));
         session.publishedEvents.put(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST, event);
-        this.messageQueue.addHandler(GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + payment.sessionId, this::handleMerchantIdToAccountNumberResponse);
+        this.messageQueue.addHandler(GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + er.getSessionId(), this::handleMerchantIdToAccountNumberResponse);
+        System.err.println("PUBLISHED EVENT " + event);
         messageQueue.publish(event);
     }
 
