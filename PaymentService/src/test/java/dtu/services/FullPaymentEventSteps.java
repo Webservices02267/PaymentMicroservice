@@ -20,6 +20,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
+import messaging.EventResponse;
+import messaging.GLOBAL_STRINGS;
 import messaging.MessageQueue;
 
 import java.math.BigDecimal;
@@ -128,7 +130,7 @@ public class FullPaymentEventSteps {
 
     @And("a merchant id to account number request is published")
     public void aMerchantIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a merchant id to account number response is published by account service")
@@ -144,7 +146,7 @@ public class FullPaymentEventSteps {
 
     @And("a get customer id from token request is published")
     public void aGetCustomerIdFromTokenRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(PaymentEventHandler.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST));
     }
 
     @When("a get customer id from token response is published by token service")
@@ -161,7 +163,7 @@ public class FullPaymentEventSteps {
     @And("a customer id to account number request is published")
     public void aCustomerIdToAccountNumberRequestIsPublished() {
         var publishedEvents = service.sessions.get(sid).publishedEvents;
-        assertTrue(publishedEvents.containsKey(PaymentEventHandler.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a customer id to account number response is published by account service")
@@ -178,13 +180,18 @@ public class FullPaymentEventSteps {
     @And("a payment response is published")
     public void aPaymentResponseIsPublished() {
         var publishedEvents = service.sessions.get(sid).publishedEvents;
-        assertTrue(publishedEvents.containsKey(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE));
-        paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE);
+        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE));
+        paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE);
     }
 
     @And("the payment response message is {string}")
     public void thePaymentResponseMessageIs(String message) {
-        assertEquals(message, paymentResponseEvent.getArgument(1, String.class));
+        var er = paymentResponseEvent.getArgument(0, EventResponse.class);
+        if (er.isSuccess()) {
+            assertEquals(message, er.getArgument(0, String.class));
+        } else {
+            assertEquals(message, er.getErrorMessage());
+        }
     }
 
     @And("merchant id is set to {string} and the payment is invalidated")
@@ -195,12 +202,12 @@ public class FullPaymentEventSteps {
 
     @And("the merchant id to account number response error message is {string}")
     public void theMerchantIdToAccountNumberResponseErrorMessageIs(String arg0) {
-        assertEquals(arg0, merchantIdToAccountNumberResponseEvent.getArgument(1, String.class));
+        assertEquals(arg0, merchantIdToAccountNumberResponseEvent.getArgument(0, EventResponse.class).getErrorMessage());
     }
 
     @And("the customer id to account number response error message is {string}")
     public void theCustomerIdToAccountNumberResponseErrorMessageIs(String arg0) {
-        assertEquals(arg0, customerIdToAccountNumberResponseEvent.getArgument(1, String.class));
+        assertEquals(arg0, customerIdToAccountNumberResponseEvent.getArgument(0, EventResponse.class).getErrorMessage());
     }
 
     @And("customer id is set to {string} and the payment is invalidated")

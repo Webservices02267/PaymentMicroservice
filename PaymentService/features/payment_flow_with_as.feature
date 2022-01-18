@@ -13,7 +13,7 @@ Feature: Full payment flow
     When a customer id to account number response is published by account service
     Then a customer id to account number response is handled
     And a payment response is published
-    And the payment response message is "ok"
+    And the payment response message is "All good"
 
   Scenario: Full payment but invalid merchant id
     Given a valid Payment Request
@@ -25,7 +25,7 @@ Feature: Full payment flow
     Then a merchant id to account number response is handled
     And the merchant id to account number response error message is "No merchant exists with the provided id"
     And a payment response is published
-    And the payment response message is "Creditor account is not valid"
+    And the payment response message is "No merchant exists with the provided id"
 
     @ignore #Beslut om det skal fjernes
     Scenario: Full payment but invalid customer id

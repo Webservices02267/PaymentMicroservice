@@ -21,6 +21,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
+import messaging.GLOBAL_STRINGS;
 import messaging.MessageQueue;
 
 
@@ -181,9 +182,9 @@ public class PaymentRequestHandleSteps {
 
         Event event;
         if(successfulPayment){
-            event = new Event(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE, new Object[] {true, return_str });
+            event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE, new Object[] {true, return_str });
         }else{
-            event = new Event(PaymentEventHandler.PUBLISH.PAYMENT_RESPONSE, new Object[] {false, return_str });
+            event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE, new Object[] {false, return_str });
             errorMessage = return_str;
         }
         verify(messageQueue).publish(event);
