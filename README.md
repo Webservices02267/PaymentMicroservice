@@ -1,6 +1,5 @@
 # Payment service
 
-
 The service is a part of the total DTU Pay microservice system where the **responsibility** of the service is to handle
 *paymentRequests*, which can be a normal payment or a refund payment received from the **REST service**.
 The payment service receives a *paymentRequest*, which has a merchant id, a token and an amount.
