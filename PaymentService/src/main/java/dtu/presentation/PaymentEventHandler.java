@@ -76,8 +76,8 @@ public class PaymentEventHandler {
         session.amount = payment.amount;
         session.description = payment.description;
         sessions.put(payment.sessionId, session);
-        Event event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST, new EventResponse(sid, true, null, session.merchantId));
-        session.publishedEvents.put(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST, event);
+        Event event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST, new EventResponse(sid, true, null, session.merchantId));
+        session.publishedEvents.put(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST, event);
         this.messageQueue.addHandler(GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.MERCHANT_TO_ACCOUNT_NUMBER_RESPONSE + "." + payment.sessionId, this::handleMerchantIdToAccountNumberResponse);
         messageQueue.publish(event);
     }
@@ -110,8 +110,8 @@ public class PaymentEventHandler {
         session.token = er.getArgument(0, Token.class);
         session.customerId = session.token.getCustomerId();
         session.tokenId = session.token.getUuid();
-        Event event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST, new EventResponse(sid, true, null, session.customerId));
-        session.publishedEvents.put(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST, event);
+        Event event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUEST, new EventResponse(sid, true, null, session.customerId));
+        session.publishedEvents.put(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUEST, event);
         this.messageQueue.addHandler(GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.CUSTOMER_TO_ACCOUNT_NUMBER_RESPONSE + "." + sid, this::handleCustomerIdToAccountNumberResponse);
         messageQueue.publish(event);
     }
