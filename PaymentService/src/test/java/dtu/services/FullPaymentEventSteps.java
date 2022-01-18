@@ -130,7 +130,7 @@ public class FullPaymentEventSteps {
 
     @And("a merchant id to account number request is published")
     public void aMerchantIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a merchant id to account number response is published by account service")
@@ -163,7 +163,7 @@ public class FullPaymentEventSteps {
     @And("a customer id to account number request is published")
     public void aCustomerIdToAccountNumberRequestIsPublished() {
         var publishedEvents = service.sessions.get(sid).publishedEvents;
-        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUEST));
     }
 
     @When("a customer id to account number response is published by account service")
