@@ -15,7 +15,7 @@ public class Event implements Serializable {
 	private Object[] arguments = null;
 	
 	public Event() {};
-	public Event(String topic, Object[] arguments) {
+	public Event(String topic, Object... arguments) {
 		this.type = topic;
 		this.arguments = arguments;
 	}
