@@ -11,6 +11,7 @@ import dtu.exceptions.*;
 import dtu.infrastructure.interfaces.IPaymentRepository;
 import dtu.presentation.PaymentDTO;
 import dtu.ws.fastmoney.BankService;
+import messaging.GLOBAL_STRINGS;
 
 public class PaymentServiceImplementation implements IPaymentService {
 
@@ -43,6 +44,10 @@ public class PaymentServiceImplementation implements IPaymentService {
         }
     }
 
+    @Override
+    public String getStatus() {
+        return GLOBAL_STRINGS.PAYMENT_SERVICE.OK_STRINGS.SANITITY_CHECK;
+    }
 
 
     @Override

@@ -32,7 +32,4 @@ public class InMemoryRepository implements IPaymentRepository {
     public Collection<Payment> getPayments() {
         return payments.values();
     }
-
-
-
 }
