@@ -60,10 +60,9 @@ public class PaymentEventHandler {
     /*
     HANDLERS
      */
-
     public void handlePaymentStatusRequest(Event event) {
         var eventResponse = event.getArgument(0, EventResponse.class);
-        messageQueue.publish(new Event(PAYMENT_STATUS_RESPONSE+ "." + eventResponse.getSessionId(), new EventResponse(eventResponse.getSessionId(), true, null, "Payment service ready")));
+        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + eventResponse.getSessionId(), new EventResponse(eventResponse.getSessionId(), true, null, "Payment service ready")));
     }
     // This is done by Payment service (This service)
     /**
@@ -87,6 +86,7 @@ public class PaymentEventHandler {
         System.err.println("PUBLISHED EVENT " + event);
         messageQueue.publish(event);
     }
+
     public void handleMerchantIdToAccountNumberResponse(Event e) {
         var er = e.getArgument(0, EventResponse.class);
         var sid = er.getSessionId();
@@ -165,11 +165,11 @@ public class PaymentEventHandler {
         }
 
         public String customerId;
-
         public String merchantId;
         public String token;
         public String amount;
     }
+
 
 
     /*
