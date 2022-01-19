@@ -1,0 +1,12 @@
+version: '3'
+services:
+  token:
+    container_name: payment
+    image: payment-service
+    environment:
+      - RABBIT_MQ_HOSTNAME=rabbitMq
+
+networks:
+  default:
+    external: true
+    name: dtupaysystem_default

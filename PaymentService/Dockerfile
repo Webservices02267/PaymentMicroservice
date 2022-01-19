@@ -3,9 +3,9 @@
 
 FROM adoptopenjdk:11-jre-hotspot
 COPY target/lib /usr/src/lib
-COPY target/payment-service-1.0.0-runner.jar /usr/src/
+COPY target/payment-service-1.0.0.jar /usr/src/
 WORKDIR /usr/src/
-CMD java -Dquarkus.http.port=8184 -Xmx64m -jar payment-service-1.0.0-runner.jar
+CMD java -Xmx64m -jar payment-service-1.0.0.jar
 
 #FROM adoptopenjdk:11-jre-hotspot
 #COPY target/lib /usr/src/lib
