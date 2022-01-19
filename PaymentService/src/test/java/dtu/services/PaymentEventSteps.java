@@ -30,8 +30,6 @@ import java.util.concurrent.CompletableFuture;
 import static dtu.presentation.PaymentEventHandler.full_payment_timeout_periode;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUEST;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class PaymentEventSteps {
 
@@ -61,8 +59,6 @@ public class PaymentEventSteps {
     String balance;
     String amount;
     boolean valid_payment;
-    private String errorMessage;
-    private boolean successfulPayment = true;
 
     @Before
     public void beforeStatement() {
@@ -82,7 +78,6 @@ public class PaymentEventSteps {
 
     @Given("a valid Payment Request with sessionid {string}")
     public void aValidPaymentRequestWithSessionid(String session_id){
-        System.out.println("Doing a valid payment request");
         valid_payment = true;
 
         balance = "1000";
