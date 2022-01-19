@@ -2,7 +2,6 @@ package dtu.presentation;
 
 import dtu.application.interfaces.IAccountService;
 import dtu.application.mocks.MockTokenService;
-import dtu.domain.Token;
 import messaging.Event;
 import messaging.EventResponse;
 import messaging.MessageQueue;
@@ -24,14 +23,16 @@ public class AccountEventHandler  {
     public static int full_payment_timeout_periode = 5000;
 
 
-    public AccountEventHandler(MockMessageQueue mq) {
+    public AccountEventHandler(MockMessageQueue mq, IAccountService accountService) {
         this.messageQueue = mq;
+        this.accountService = accountService;
     }
 
 
-    public Event merchantVerificationRequest(String customerId, String sessionId) {
+    public Event merchantVerificationRequest(String MerchantId, String sessionId) {
         customerVerified = new CompletableFuture<Event>();
-        EventResponse eventResponse = new EventResponse(sessionId, true, null, customerId);
+        //AccountNumber should be taken out of the AccountService, but now we just use the MerchantId
+        EventResponse eventResponse = new EventResponse(sessionId, true, null, MerchantId);
         Event outgoingEvent = new Event(MERCHANT_VERIFICATION_REQUESTED+"." + sessionId, eventResponse);
 
         messageQueue.publish(outgoingEvent);
@@ -64,11 +65,12 @@ public class AccountEventHandler  {
     }
 
 
-    public Event customerVerificationRequest(Token token, String sessionId) {
+    public Event customerVerificationRequest(String customerid, String sessionId) {
         customerVerified = new CompletableFuture<Event>();
-        EventResponse eventResponse = new EventResponse(sessionId, true, null, token.getUuid());
-        Event outgoingEvent = new Event(CUSTOMER_VERIFICATION_REQUESTED+"." + sessionId, eventResponse);
 
+        //AccountNumber should be taken out of the AccountService, but now we just use the customerId
+        EventResponse eventResponse = new EventResponse(sessionId, true, null, customerid);
+        Event outgoingEvent = new Event(CUSTOMER_VERIFICATION_REQUESTED+"." + sessionId, eventResponse);
         messageQueue.addHandler(CUSTOMER_VERIFICATION_RESPONSE+"." + sessionId, this::handleCustomerVerificationResponse);
         messageQueue.publish(outgoingEvent);
 

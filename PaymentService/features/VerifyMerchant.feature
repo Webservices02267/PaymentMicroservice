@@ -22,7 +22,7 @@ Feature: Verify accounts
     Then the "Customer" verification request event is sent
 
   # Reveive the response
-    When the verification response event is sent with TokenId
+    When the verification response event is sent with CustomerId
   # Assert that the response is valid.
     Then the Customer is verified
 

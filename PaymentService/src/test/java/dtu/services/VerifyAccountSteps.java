@@ -42,7 +42,6 @@ public class VerifyAccountSteps {
     private Event MerchantVerificationResponse;
     private Event CustomerVerificationResponse;
     private String customerId;
-    private Token token;
 
     public VerifyAccountSteps() {
         service.tokenService = tokenService;
@@ -56,7 +55,7 @@ public class VerifyAccountSteps {
     IPaymentService paymentService = new PaymentServiceImplementation(bankService, new InMemoryRepository());
     MockTokenService tokenService = new MockTokenService();
     MockMessageQueue mq = new MockMessageQueue();
-    AccountEventHandler service = new AccountEventHandler(mq);
+    AccountEventHandler service = new AccountEventHandler(mq,accountService);
 
     CompletableFuture<Event> customerVerificationResponseComplete = new CompletableFuture<>();
 
@@ -139,7 +138,7 @@ public class VerifyAccountSteps {
             event = new Event(MERCHANT_VERIFICATION_REQUESTED+"."+sid, eventResponse);
             expected_event = mq.getEvent(MERCHANT_VERIFICATION_REQUESTED + "." + sid);
         }else{
-            eventResponse = new EventResponse(sid , true, null, token.getUuid());
+            eventResponse = new EventResponse(sid , true, null, customerId);
             event = new Event(CUSTOMER_VERIFICATION_REQUESTED+"."+sid, eventResponse);
             expected_event = mq.getEvent(CUSTOMER_VERIFICATION_REQUESTED + "." + sid);
         }
@@ -172,6 +171,31 @@ public class VerifyAccountSteps {
     }
 
 
+//    For the tokenServiceTest
+//    @Given("a registered Customer with accountNumber {string}")
+//    public void aRegisteredCustomerWithAccountNumber(String accountNumber) {
+//        sid = "accountNumber";
+//
+//        balance = "1000";
+//        var user = new User();
+//        user.setCprNumber("135643-1337");
+//        user.setLastName("customer");
+//        user.setFirstName("customer");
+//
+//        try {
+//            customerId = bankServiceWrapper.createAccountWithBalance(user, new BigDecimal(balance));
+//
+//        } catch (BankServiceException_Exception e) {
+//            e.printStackTrace();
+//        }
+//        accountService.registerCustomer(customerId);
+//        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
+//        accountService.registerMerchant(merchantId);
+//
+//        this.accountNumber = accountNumber;
+//    }
+
+
     @Given("a registered Customer with accountNumber {string}")
     public void aRegisteredCustomerWithAccountNumber(String accountNumber) {
         sid = "accountNumber";
@@ -189,7 +213,6 @@ public class VerifyAccountSteps {
             e.printStackTrace();
         }
         accountService.registerCustomer(customerId);
-        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
         accountService.registerMerchant(merchantId);
 
         this.accountNumber = accountNumber;
@@ -198,7 +221,7 @@ public class VerifyAccountSteps {
     @When("the Customer is being verified")
     public void theCustomerIsBeingVerified() {
         new Thread(() -> {
-            CustomerVerificationResponse = service.customerVerificationRequest(token, sid);
+            CustomerVerificationResponse = service.customerVerificationRequest(customerId, sid);
             customerVerificationResponseComplete.complete(CustomerVerificationResponse);
         }).start();
         //Avoid Race Condition when on linux
@@ -206,10 +229,10 @@ public class VerifyAccountSteps {
 
     }
 
-    @When("the verification response event is sent with TokenId")
-    public void theVerificationResponseEventIsSentWithTokenId() throws InterruptedException {
+    @When("the verification response event is sent with CustomerId")
+    public void theVerificationResponseEventIsSentWithCustomerId() throws InterruptedException {
         // This step simulate the event created by the account service.'
-        EventResponse eventResponse = new EventResponse(sid, true, token.getUuid());
+        EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
         Event responseEvent = new Event(CUSTOMER_VERIFICATION_RESPONSE+"." + sid, eventResponse);
         service.handleCustomerVerificationResponse(responseEvent);
 
@@ -217,7 +240,7 @@ public class VerifyAccountSteps {
 
     @Then("the Customer is verified")
     public void theCustomerIsVerified() {
-        EventResponse eventResponse = new EventResponse(sid, true, token.getUuid());
+        EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
         Event expectedEvent = new Event(CUSTOMER_VERIFICATION_RESPONSE+"." + sid, eventResponse);
         Event actualEvent = customerVerificationResponseComplete.join();
         assertEquals(expectedEvent, actualEvent);
@@ -230,7 +253,7 @@ public class VerifyAccountSteps {
     @When("the account is being verified")
     public void theAccountIsBeingVerified() {
         new Thread(() -> {
-            CustomerVerificationResponse = service.customerVerificationRequest(token, sid);
+            CustomerVerificationResponse = service.customerVerificationRequest(customerId, sid);
             customerVerificationResponseComplete.complete(CustomerVerificationResponse);
         }).start();
         //Avoid Race Condition when on linux
