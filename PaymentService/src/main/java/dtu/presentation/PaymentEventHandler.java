@@ -17,13 +17,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUEST;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.OK_STRINGS.SANITITY_CHECK;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE;
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE;
 import static org.junit.Assert.assertNull;
 
 public class PaymentEventHandler {
 
 
+    public static int full_payment_timeout_periode = 5000;
     private CompletableFuture<Event> paymentDone;
 
     public static class Session {
@@ -62,7 +63,7 @@ public class PaymentEventHandler {
      */
     public void handlePaymentStatusRequest(Event event) {
         var eventResponse = event.getArgument(0, EventResponse.class);
-        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + eventResponse.getSessionId(), new EventResponse(eventResponse.getSessionId(), true, null, "Payment service ready")));
+        messageQueue.publish(new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_STATUS_RESPONSE+ "." + eventResponse.getSessionId(), new EventResponse(eventResponse.getSessionId(), true, null, SANITITY_CHECK)));
     }
     // This is done by Payment service (This service)
     /**
@@ -183,18 +184,18 @@ public class PaymentEventHandler {
         messageQueue.addHandler(PAYMENT_RESPONSE+"." + sid, this::handlePaymentRequest2);
         messageQueue.publish(outgoingEvent);
 
-        (new Thread() {
+        new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(full_payment_timeout_periode);
                     EventResponse eventResponse = new EventResponse(sid, false, "No response from PaymentService");
-                    Event value = new Event(PAYMENT_RESPONSE+"." + sid, eventResponse);
-                    paymentDone.complete(value);
+                    Event event = new Event(PAYMENT_RESPONSE+"." + sid, eventResponse);
+                    paymentDone.complete(event);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }.start();
         return paymentDone.join();
     }
 
