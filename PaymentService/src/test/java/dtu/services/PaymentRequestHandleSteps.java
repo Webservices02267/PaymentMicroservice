@@ -97,7 +97,7 @@ public class PaymentRequestHandleSteps {
         accountService.registerMerchant(merchantId);
 
         payment = new PaymentDTO(merchantId, token.getUuid(), amount);
-        payment.sessionId = "1";
+
         payment.description = "this is cucumber";
     }
 

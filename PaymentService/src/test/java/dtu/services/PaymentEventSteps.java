@@ -105,7 +105,6 @@ public class PaymentEventSteps {
         accountService.registerMerchant(merchantId);
 
         payment = new PaymentDTO(merchantId, token.getUuid(), amount);
-        payment.sessionId = "1";
         payment.description = "this is cucumber";
 
     }

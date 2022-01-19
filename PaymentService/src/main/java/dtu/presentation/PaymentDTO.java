@@ -1,20 +1,20 @@
 package dtu.presentation;
 
+
 public class PaymentDTO {
-    public String merchantId;
-    public String amount;
+
     public String token;
+    public String merchant;
+    public String amount;
     public String description;
-    public String sessionId;
 
-    public PaymentDTO() {
-
-    }
-
-    public PaymentDTO(String merchantId, String token, String amount) {
-        this.merchantId = merchantId;
+    public PaymentDTO(String merchant, String token, String amount) {
+        this.merchant = merchant;
         this.token = token;
         this.amount = amount;
     }
 
+    public PaymentDTO() {
+
+    }
 }

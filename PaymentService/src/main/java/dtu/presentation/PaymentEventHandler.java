@@ -75,7 +75,7 @@ public class PaymentEventHandler {
         var sid = er.getSessionId();
         var payment = er.getArgument(0, PaymentDTO.class);
         var session = new Session();
-        session.merchantId = payment.merchantId;
+        session.merchantId = payment.merchant;
         session.tokenId = payment.token;
         session.amount = payment.amount;
         session.description = payment.description;

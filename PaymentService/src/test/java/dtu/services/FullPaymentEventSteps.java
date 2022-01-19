@@ -117,7 +117,6 @@ public class FullPaymentEventSteps {
     public void aPaymentRequestIsPublished() {
         sid = UUID.randomUUID().toString();
         payment = new PaymentDTO(merchantId, token.getUuid(), amount);
-        payment.sessionId = sid;
         payment.description = "all your base are belong to cucumber";
         validPaymentRequestEvent = service.doPaymentRequestEvent(payment, sid);
     }
