@@ -1,3 +1,4 @@
 [submodule "Messaging-utilities"]
 	path = Messaging-utilities
 	url = git@github.com:Webservices02267/Messaging-utilities.git
+	branch = main
