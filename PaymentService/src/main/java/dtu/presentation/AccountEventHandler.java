@@ -11,8 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.HANDLE.CUSTOMER_VERIFICATION_REQUESTED;
 import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.HANDLE.MERCHANT_VERIFICATION_REQUESTED;
-import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.CUSTOMER_VERIFICATION_RESPONSE;
-import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.MERCHANT_VERIFICATION_RESPONSE;
+import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.*;
 
 public class AccountEventHandler  {
     public IAccountService accountService;
@@ -33,17 +32,17 @@ public class AccountEventHandler  {
         customerVerified = new CompletableFuture<Event>();
         //AccountNumber should be taken out of the AccountService, but now we just use the MerchantId
         EventResponse eventResponse = new EventResponse(sessionId, true, null, MerchantId);
-        Event outgoingEvent = new Event(MERCHANT_VERIFICATION_REQUESTED+"." + sessionId, eventResponse);
+        Event outgoingEvent = new Event(MERCHANT_VERIFICATION_REQUESTED + sessionId, eventResponse);
 
         messageQueue.publish(outgoingEvent);
-        messageQueue.addHandler(MERCHANT_VERIFICATION_RESPONSE+"." + sessionId, this::handleMerchantVerificationResponse);
+        messageQueue.addHandler(MERCHANT_VERIFICATION_RESPONDED + sessionId, this::handleMerchantVerificationResponse);
 
         (new Thread() {
             public void run() {
                 try {
                     Thread.sleep(full_payment_timeout_periode);
                     EventResponse eventResponse = new EventResponse(sessionId, false, "No response from AccountService");
-                    Event value = new Event(MERCHANT_VERIFICATION_RESPONSE+"." + sessionId, eventResponse);
+                    Event value = new Event(MERCHANT_VERIFICATION_RESPONDED + sessionId, eventResponse);
                     customerVerified.complete(value);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -54,13 +53,13 @@ public class AccountEventHandler  {
     }
 
     public void handleMerchantVerificationResponse(Event e) {
-        System.err.println(MERCHANT_VERIFICATION_RESPONSE + e);
+        System.err.println(MERCHANT_VERIFICATION_RESPONDED + e);
         customerVerified.complete(e);
     }
 
 
     public void handleCustomerVerificationResponse(Event e) {
-        System.err.println(CUSTOMER_VERIFICATION_RESPONSE + e);
+        System.err.println(CUSTOMER_VERIFICATION_RESPONDED + e);
         customerVerified.complete(e);
     }
 
@@ -70,8 +69,8 @@ public class AccountEventHandler  {
 
         //AccountNumber should be taken out of the AccountService, but now we just use the customerId
         EventResponse eventResponse = new EventResponse(sessionId, true, null, customerid);
-        Event outgoingEvent = new Event(CUSTOMER_VERIFICATION_REQUESTED+"." + sessionId, eventResponse);
-        messageQueue.addHandler(CUSTOMER_VERIFICATION_RESPONSE+"." + sessionId, this::handleCustomerVerificationResponse);
+        Event outgoingEvent = new Event(CUSTOMER_VERIFICATION_REQUESTED + sessionId, eventResponse);
+        messageQueue.addHandler(CUSTOMER_VERIFICATION_RESPONDED + sessionId, this::handleCustomerVerificationResponse);
         messageQueue.publish(outgoingEvent);
 
         (new Thread() {
@@ -79,7 +78,7 @@ public class AccountEventHandler  {
                 try {
                     Thread.sleep(full_payment_timeout_periode);
                     EventResponse eventResponse = new EventResponse(sessionId, false, "No response from AccountService");
-                    Event value = new Event(CUSTOMER_VERIFICATION_RESPONSE+"." + sessionId, eventResponse);
+                    Event value = new Event(CUSTOMER_VERIFICATION_RESPONDED + sessionId, eventResponse);
                     customerVerified.complete(value);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

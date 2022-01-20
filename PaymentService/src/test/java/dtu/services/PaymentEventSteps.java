@@ -28,7 +28,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 
 import static dtu.presentation.PaymentEventHandler.full_payment_timeout_periode;
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUEST;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUESTED;
 import static org.junit.Assert.*;
 
 public class PaymentEventSteps {
@@ -129,10 +129,10 @@ public class PaymentEventSteps {
     public void aPaymentRequestIsSent() throws InterruptedException {
         paymentAttempt.complete(true);
         EventResponse eventResponse = new EventResponse(sid, true, null, payment);
-        Event event = new Event(PAYMENT_REQUEST+"."+sid, eventResponse );
+        Event event = new Event(PAYMENT_REQUESTED+sid, eventResponse );
         service.handlePaymentRequest2(event);
         Thread.sleep(200); // added feature for concurrency
-        final Event paymentRequest = mq.getEvent(PAYMENT_REQUEST+"."+sid);
+        final Event paymentRequest = mq.getEvent(PAYMENT_REQUESTED+sid);
         assertEquals(event,paymentRequest );
     }
 

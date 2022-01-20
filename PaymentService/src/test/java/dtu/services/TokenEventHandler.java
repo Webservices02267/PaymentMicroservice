@@ -6,7 +6,7 @@ import messaging.Event;
 import messaging.EventResponse;
 import messaging.implementations.MockMessageQueue;
 
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED;
 
 public class TokenEventHandler {
 
@@ -24,7 +24,7 @@ public class TokenEventHandler {
         var token_id = eventArguments.getArgument(0, String.class);
         Token token = tokenService.getVerifiedToken(token_id);
         EventResponse eventResponse = new EventResponse(eventArguments.getSessionId(), token.getValidToken(), null, token);
-        Event CustomerIdTokenResponseEvent = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE+sid, new Object[] {eventResponse});
+        Event CustomerIdTokenResponseEvent = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED+sid, new Object[] {eventResponse});
         mq.publish(CustomerIdTokenResponseEvent);
     }
 }

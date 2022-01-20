@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONDED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -181,9 +182,9 @@ public class PaymentRequestHandleSteps {
 
         Event event;
         if(successfulPayment){
-            event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE, new Object[] {true, return_str });
+            event = new Event(PAYMENT_RESPONDED, new Object[] {true, return_str });
         }else{
-            event = new Event(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE, new Object[] {false, return_str });
+            event = new Event(PAYMENT_RESPONDED, new Object[] {false, return_str });
             errorMessage = return_str;
         }
         verify(messageQueue).publish(event);

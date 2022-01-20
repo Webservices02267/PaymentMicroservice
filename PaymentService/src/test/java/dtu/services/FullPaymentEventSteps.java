@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONDED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -124,7 +125,7 @@ public class FullPaymentEventSteps {
 
     @And("a merchant id to account number request is published")
     public void aMerchantIdToAccountNumberRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUESTED));
     }
 
     @When("a merchant id to account number response is published by account service")
@@ -140,7 +141,7 @@ public class FullPaymentEventSteps {
 
     @And("a get customer id from token request is published")
     public void aGetCustomerIdFromTokenRequestIsPublished() {
-        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST));
+        assertTrue(service.sessions.get(sid).publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED));
     }
 
     @When("a get customer id from token response is published by token service")
@@ -157,7 +158,7 @@ public class FullPaymentEventSteps {
     @And("a customer id to account number request is published")
     public void aCustomerIdToAccountNumberRequestIsPublished() {
         var publishedEvents = service.sessions.get(sid).publishedEvents;
-        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUEST));
+        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED));
     }
 
     @When("a customer id to account number response is published by account service")
@@ -174,8 +175,8 @@ public class FullPaymentEventSteps {
     @And("a payment response is published")
     public void aPaymentResponseIsPublished() {
         var publishedEvents = service.sessions.get(sid).publishedEvents;
-        assertTrue(publishedEvents.containsKey(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE));
-        paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.PAYMENT_RESPONSE);
+        assertTrue(publishedEvents.containsKey(PAYMENT_RESPONDED));
+        paymentResponseEvent = service.sessions.get(sid).publishedEvents.get(PAYMENT_RESPONDED);
     }
 
     @And("the payment response message is {string}")

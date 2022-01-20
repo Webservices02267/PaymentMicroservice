@@ -30,9 +30,9 @@ import java.util.concurrent.CompletableFuture;
 import static dtu.presentation.AccountEventHandler.full_payment_timeout_periode;
 import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.HANDLE.CUSTOMER_VERIFICATION_REQUESTED;
 import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.HANDLE.MERCHANT_VERIFICATION_REQUESTED;
-import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.CUSTOMER_VERIFICATION_RESPONSE;
-import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.MERCHANT_VERIFICATION_RESPONSE;
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUEST;
+import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.CUSTOMER_VERIFICATION_RESPONDED;
+import static messaging.GLOBAL_STRINGS.ACCOUNT_SERVICE.PUBLISH.MERCHANT_VERIFICATION_RESPONDED;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.PAYMENT_REQUESTED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -125,12 +125,12 @@ public class VerifyAccountSteps {
         Event expected_event;
         if(accountType.equals("Merchant")){
             eventResponse = new EventResponse(sid , true, null, merchantId);
-            event = new Event(MERCHANT_VERIFICATION_REQUESTED+"."+sid, eventResponse);
-            expected_event = mq.getEvent(MERCHANT_VERIFICATION_REQUESTED + "." + sid);
+            event = new Event(MERCHANT_VERIFICATION_REQUESTED+sid, eventResponse);
+            expected_event = mq.getEvent(MERCHANT_VERIFICATION_REQUESTED  + sid);
         }else{
             eventResponse = new EventResponse(sid , true, null, customerId);
-            event = new Event(CUSTOMER_VERIFICATION_REQUESTED+"."+sid, eventResponse);
-            expected_event = mq.getEvent(CUSTOMER_VERIFICATION_REQUESTED + "." + sid);
+            event = new Event(CUSTOMER_VERIFICATION_REQUESTED+sid, eventResponse);
+            expected_event = mq.getEvent(CUSTOMER_VERIFICATION_REQUESTED  + sid);
         }
 
         assertEquals(event,expected_event);
@@ -140,14 +140,14 @@ public class VerifyAccountSteps {
     public void theVerificationResponseEventIsSentWithMerchantId() {
         // This step simulate the event created by the account service.'
         EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
-        Event responseEvent = new Event(MERCHANT_VERIFICATION_RESPONSE+"." + sid, eventResponse);
+        Event responseEvent = new Event(MERCHANT_VERIFICATION_RESPONDED + sid, eventResponse);
         service.handleMerchantVerificationResponse(responseEvent);
     }
 
     @Then("the Merchant is verified")
     public void theMerchantIsVerified() {
         EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
-        Event expectedEvent = new Event(MERCHANT_VERIFICATION_RESPONSE+"." + sid, eventResponse);
+        Event expectedEvent = new Event(MERCHANT_VERIFICATION_RESPONDED + sid, eventResponse);
         Event actualEvent = customerVerificationResponseComplete.join();
         assertEquals(expectedEvent, actualEvent);
     }
@@ -198,7 +198,7 @@ public class VerifyAccountSteps {
     public void theVerificationResponseEventIsSentWithCustomerId() throws InterruptedException {
         // This step simulate the event created by the account service.'
         EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
-        Event responseEvent = new Event(CUSTOMER_VERIFICATION_RESPONSE+"." + sid, eventResponse);
+        Event responseEvent = new Event(CUSTOMER_VERIFICATION_RESPONDED + sid, eventResponse);
         service.handleCustomerVerificationResponse(responseEvent);
 
     }
@@ -206,7 +206,7 @@ public class VerifyAccountSteps {
     @Then("the Customer is verified")
     public void theCustomerIsVerified() {
         EventResponse eventResponse = new EventResponse(sid, true, accountNumber);
-        Event expectedEvent = new Event(CUSTOMER_VERIFICATION_RESPONSE+"." + sid, eventResponse);
+        Event expectedEvent = new Event(CUSTOMER_VERIFICATION_RESPONDED + sid, eventResponse);
         Event actualEvent = customerVerificationResponseComplete.join();
         assertEquals(expectedEvent, actualEvent);
     }

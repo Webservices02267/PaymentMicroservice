@@ -1,7 +1,7 @@
 Feature: VerifyPayment
   Scenario: Payment service status
     When the payment service is requested for its status
-    Then the status message is "Sanitity check for payment service"
+    Then the status message is "Sanity check for payment service"
 
 
   Scenario: simple payment

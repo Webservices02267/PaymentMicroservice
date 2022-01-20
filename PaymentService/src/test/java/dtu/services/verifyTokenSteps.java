@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static dtu.presentation.PaymentEventHandler.full_payment_timeout_periode;
 import static io.restassured.RestAssured.sessionId;
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE;
-import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUEST;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED;
+import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED;
 import static org.junit.Assert.*;
 
 public class verifyTokenSteps {
@@ -110,7 +110,7 @@ public class verifyTokenSteps {
     public void aGetCustomerIdFromTokenRequestedEventIsSent() throws InterruptedException {
         new Thread(() -> {
             EventResponse eventResponse = new EventResponse(sid, true, null, token.getUuid());
-            Event CustomerIdTokenRequestEvent = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUEST+sid, new Object[] {eventResponse});
+            Event CustomerIdTokenRequestEvent = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED+sid, new Object[] {eventResponse});
             eventHandler.handleGetCustomerIdFromTokenRequest(CustomerIdTokenRequestEvent);
         }).start();
 
@@ -120,7 +120,7 @@ public class verifyTokenSteps {
 
     @When("the GetCustomerIdFromTokenResponded event is received")
     public void theGetCustomerIdFromTokenRespondedEventIsReceived() {
-        final Event event = mq.getEvent(GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE+sid);
+        final Event event = mq.getEvent(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED+sid);
 
         mq.verify(event);
         tokenEventResponse = event.getArgument(0, EventResponse.class);
@@ -136,7 +136,7 @@ public class verifyTokenSteps {
 
     @And("the token should be invalid")
     public void theTokenShouldBeInvalid() {
-        final Event event = mq.getEvent(GET_CUSTOMER_ID_FROM_TOKEN_RESPONSE+sid);
+        final Event event = mq.getEvent(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED+sid);
 
         tokenEventResponse = event.getArgument(0, EventResponse.class);
         final Token responseToken = tokenEventResponse.getArgument(0, Token.class);
