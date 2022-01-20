@@ -47,7 +47,6 @@ public class FullPaymentEventSteps {
         service.tokenService = tokenService;
         service.accountService = accountService;
     }
-    CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
     PaymentDTO payment;
 
@@ -57,9 +56,6 @@ public class FullPaymentEventSteps {
     String balance;
     String amount;
     boolean valid_payment;
-    private String errorMessage;
-    private boolean successfulPayment = true;;
-
 
     Event validPaymentRequestEvent = null;
     Event merchantIdToAccountNumberResponseEvent = null;

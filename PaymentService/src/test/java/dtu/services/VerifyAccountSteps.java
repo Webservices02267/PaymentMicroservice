@@ -43,16 +43,9 @@ public class VerifyAccountSteps {
     private Event CustomerVerificationResponse;
     private String customerId;
 
-    public VerifyAccountSteps() {
-        service.tokenService = tokenService;
-        service.accountService = accountService;
-    }
-
     BankService bankService = new MockBankService();
-
     BankServiceWrapper bankServiceWrapper = new BankServiceWrapper(bankService);
     IAccountService accountService = new MockAccountService();
-    IPaymentService paymentService = new PaymentServiceImplementation(bankService, new InMemoryRepository());
     MockTokenService tokenService = new MockTokenService();
     MockMessageQueue mq = new MockMessageQueue();
     AccountEventHandler service = new AccountEventHandler(mq,accountService);
@@ -86,8 +79,6 @@ public class VerifyAccountSteps {
     }
 
 
-
-
     @Given("a registered Merchant with accountNumber {string}")
     public void aRegisteredMerchantWithAccountNumber(String accountNumber) {
 
@@ -114,7 +105,6 @@ public class VerifyAccountSteps {
         //Make the scenario "payment not responding" quick by not waiting 5 seconds
         full_payment_timeout_periode = 100;
     }
-
 
 
     @When("the Merchant is being verified")
@@ -171,31 +161,6 @@ public class VerifyAccountSteps {
     }
 
 
-//    For the tokenServiceTest
-//    @Given("a registered Customer with accountNumber {string}")
-//    public void aRegisteredCustomerWithAccountNumber(String accountNumber) {
-//        sid = "accountNumber";
-//
-//        balance = "1000";
-//        var user = new User();
-//        user.setCprNumber("135643-1337");
-//        user.setLastName("customer");
-//        user.setFirstName("customer");
-//
-//        try {
-//            customerId = bankServiceWrapper.createAccountWithBalance(user, new BigDecimal(balance));
-//
-//        } catch (BankServiceException_Exception e) {
-//            e.printStackTrace();
-//        }
-//        accountService.registerCustomer(customerId);
-//        token = tokenService.createTokens(customerId, 5).stream().findFirst().get();
-//        accountService.registerMerchant(merchantId);
-//
-//        this.accountNumber = accountNumber;
-//    }
-
-
     @Given("a registered Customer with accountNumber {string}")
     public void aRegisteredCustomerWithAccountNumber(String accountNumber) {
         sid = "accountNumber";
@@ -245,9 +210,6 @@ public class VerifyAccountSteps {
         Event actualEvent = customerVerificationResponseComplete.join();
         assertEquals(expectedEvent, actualEvent);
     }
-
-
-
 
 
     @When("the account is being verified")

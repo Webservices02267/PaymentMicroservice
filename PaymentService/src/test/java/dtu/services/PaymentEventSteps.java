@@ -41,10 +41,6 @@ public class PaymentEventSteps {
     MockTokenService tokenService = new MockTokenService();
     MockMessageQueue mq = new MockMessageQueue();
     PaymentEventHandler service = new PaymentEventHandler(mq, paymentService);
-    public PaymentEventSteps() {
-        service.tokenService = tokenService;
-        service.accountService = accountService;
-    }
 
     CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
     CompletableFuture<Event> paymentRequestComplete = new CompletableFuture<>();

@@ -27,7 +27,7 @@ Feature: Verify accounts
     Then the Customer is verified
 
 
-  Scenario: payment not responding
+  Scenario: Account not responding
     Given a registered account with accountNumber "1234"
     And no accountVerification request is verified in time
     When the account is being verified
