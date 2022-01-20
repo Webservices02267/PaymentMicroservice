@@ -183,18 +183,28 @@ public class PaymentEventHandler {
         messageQueue.addHandler(PAYMENT_RESPONSE+"." + sid, this::handlePaymentRequest2);
         messageQueue.publish(outgoingEvent);
 
-        new Thread() {
-            public void run() {
+        new Thread(() -> {
                 try {
-                    Thread.sleep(full_payment_timeout_periode);
-                    EventResponse eventResponse = new EventResponse(sid, false, "No response from PaymentService");
-                    Event event = new Event(PAYMENT_RESPONSE+"." + sid, eventResponse);
-                    paymentDone.complete(event);
+                Thread.sleep(full_payment_timeout_periode);
+                EventResponse eventResponseThread = new EventResponse(sid, false, "No response from PaymentService");
+                Event event = new Event(PAYMENT_RESPONSE+"." + sid, eventResponseThread);
+                paymentDone.complete(event);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
-        }.start();
+        }).start();
+//        (new Thread() {
+//            public void run() {
+//                try {
+//                    Thread.sleep(5000);
+//                    EventResponse eventResponse = new EventResponse(sid, false, "No response from PaymentService");
+//                    Event value = new Event(PAYMENT_RESPONSE+"." + sid, eventResponse);
+//                    paymentDone.complete(value);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }.start();
         return paymentDone.join();
     }
 
