@@ -28,7 +28,6 @@ public class PaymentEventHandler {
     private CompletableFuture<Event> paymentDone;
 
     public static class Session {
-
         public String merchantId;
         public String merchantAccountNumber;
         public String customerId;
@@ -55,9 +54,6 @@ public class PaymentEventHandler {
 
     public final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
-
-
-
     /*
     HANDLERS
      */
@@ -72,35 +68,34 @@ public class PaymentEventHandler {
      */
     public void handlePaymentRequest(Event e) {
         System.err.println("RECEIVED EVENT " + e);
-        var er = e.getArgument(0, EventResponse.class);
-        var sid = er.getSessionId();
-        var payment = er.getArgument(0, PaymentDTO.class);
+        var eventArgument = e.getArgument(0, EventResponse.class);
+        var sessionId = eventArgument.getSessionId();
         var session = new Session();
-        session.merchantId = payment.merchant;
-        session.tokenId = payment.token;
-        session.amount = payment.amount;
-        session.description = payment.description;
-        sessions.put(er.getSessionId(), session);
-        Event event = new Event(MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUESTED, new EventResponse(sid, true, null, session.merchantId));
+        session.merchantId = eventArgument.getArgument(0, String.class);
+        session.tokenId = eventArgument.getArgument(1, String.class);
+        session.amount = eventArgument.getArgument(2, String.class);
+        session.description = eventArgument.getArgument(3, String.class);
+        sessions.put(eventArgument.getSessionId(), session);
+        Event event = new Event(MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUESTED, new EventResponse(sessionId, true, null, session.merchantId));
         session.publishedEvents.put(MERCHANT_ID_TO_ACCOUNT_NUMBER_REQUESTED, event);
-        this.messageQueue.addHandler(MERCHANT_TO_ACCOUNT_NUMBER_RESPONDED + er.getSessionId(), this::handleMerchantIdToAccountNumberResponse);
+        this.messageQueue.addHandler(MERCHANT_TO_ACCOUNT_NUMBER_RESPONDED + eventArgument.getSessionId(), this::handleMerchantIdToAccountNumberResponse);
         System.err.println("PUBLISHED EVENT " + event);
         messageQueue.publish(event);
     }
 
     public void handleMerchantIdToAccountNumberResponse(Event e) {
-        var er = e.getArgument(0, EventResponse.class);
-        var sid = er.getSessionId();
-        var session = sessions.get(sid);
+        var eventArgument = e.getArgument(0, EventResponse.class);
+        var sessionId = eventArgument.getSessionId();
+        var session = sessions.get(sessionId);
         Event event;
-        if (!er.isSuccess()) {
-            event = new Event(PAYMENT_RESPONDED + sid, new EventResponse(sid, false, er.getErrorMessage()));
+        if (!eventArgument.isSuccess()) {
+            event = new Event(PAYMENT_RESPONDED + sessionId, new EventResponse(sessionId, false, eventArgument.getErrorMessage()));
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         } else {
-            session.merchantAccountNumber = er.getArgument(0, String.class);
-            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sid, true, null, session.token));
+            session.merchantAccountNumber = eventArgument.getArgument(0, String.class);
+            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.token));
             session.publishedEvents.put(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, event);
-            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED + sid, this::handleGetCustomerIdFromTokenResponse);
+            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED + sessionId, this::handleGetCustomerIdFromTokenResponse);
         }
         messageQueue.publish(event);
     }
@@ -194,18 +189,6 @@ public class PaymentEventHandler {
                     e.printStackTrace();
                 }
         }).start();
-//        (new Thread() {
-//            public void run() {
-//                try {
-//                    Thread.sleep(5000);
-//                    EventResponse eventResponse = new EventResponse(sid, false, "No response from PaymentService");
-//                    Event value = new Event(PAYMENT_RESPONSE+"." + sid, eventResponse);
-//                    paymentDone.complete(value);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }.start();
         return paymentDone.join();
     }
 
