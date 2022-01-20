@@ -47,7 +47,6 @@ public class FullPaymentEventSteps {
         service.tokenService = tokenService;
         service.accountService = accountService;
     }
-    CompletableFuture<Boolean> paymentAttempt = new CompletableFuture<>();
 
     PaymentDTO payment;
 
@@ -57,9 +56,6 @@ public class FullPaymentEventSteps {
     String balance;
     String amount;
     boolean valid_payment;
-    private String errorMessage;
-    private boolean successfulPayment = true;;
-
 
     Event validPaymentRequestEvent = null;
     Event merchantIdToAccountNumberResponseEvent = null;
@@ -83,7 +79,6 @@ public class FullPaymentEventSteps {
 
     @Given("a valid Payment Request")
     public void aValidPaymentRequest() {
-        System.out.println("Doing a valid payment request");
         valid_payment = true;
 
         balance = "1000";
@@ -214,4 +209,5 @@ public class FullPaymentEventSteps {
         customerId = arg0;
 
     }
+
 }

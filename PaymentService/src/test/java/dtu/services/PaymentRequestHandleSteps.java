@@ -71,7 +71,6 @@ public class PaymentRequestHandleSteps {
 
     @Given("a valid PaymentRequest")
     public void aValidPaymentRequest() {
-        System.out.println("Doing a valid payment request");
         valid_payment = true;
 
         balance = "1000";

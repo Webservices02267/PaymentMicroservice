@@ -15,7 +15,7 @@ public class Token {
 	}
 	
 	public Token(Boolean tokenValidity) {
-		tokenValidity = false;
+		this.tokenValidity = false;
 	}
 
 	public Token(String customerId, String token, boolean isValid) {
