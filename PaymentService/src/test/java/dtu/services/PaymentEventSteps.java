@@ -99,7 +99,6 @@ public class PaymentEventSteps {
         accountService.registerMerchant(merchantId);
 
         payment = new PaymentDTO(merchantId, token.getUuid(), amount);
-        payment.sessionId = session_id;
         payment.description = "this is cucumber";
 
         sid = session_id;
