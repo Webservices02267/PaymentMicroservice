@@ -215,7 +215,12 @@ public class PaymentEventHandler {
 
     //TODO MOVE PUBLISH PAYMENT RESPONSE TO HANDLERS
     public Event doPaymentRequestEvent(PaymentDTO paymentDTO, String sid) {
-        var e = new Event(PAYMENT_REQUESTED + sid, new EventResponse(sid, true, null, paymentDTO));
+        var session = new Session();
+        session.merchantId = paymentDTO.merchant;
+        session.tokenId = paymentDTO.token;
+        session.amount = paymentDTO.amount;
+        session.description = paymentDTO.description;
+        var e = new Event(PAYMENT_REQUESTED + sid, new EventResponse(sid, true, null, paymentDTO.merchant, paymentDTO.token, paymentDTO.amount, paymentDTO.description));
         messageQueue.publish(e);
         return e;
     }
