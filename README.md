@@ -27,4 +27,4 @@ Each of the steps in this file is also described in the Jenkins file. where the 
 - `./deploy.sh`
 - `./test.sh`
 
-To stop the service run `./stop.sh`.
+To stop the service run `./stop.sh`. 
