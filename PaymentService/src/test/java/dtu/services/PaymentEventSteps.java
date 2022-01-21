@@ -7,6 +7,7 @@ import dtu.application.interfaces.IAccountService;
 import dtu.application.mocks.MockAccountService;
 import dtu.application.mocks.MockBankService;
 import dtu.application.mocks.MockTokenService;
+import dtu.domain.Payment;
 import dtu.domain.Token;
 import dtu.infrastructure.InMemoryRepository;
 import dtu.presentation.PaymentDTO;
@@ -25,6 +26,7 @@ import messaging.implementations.MockMessageQueue;
 import org.junit.Before;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static dtu.presentation.PaymentEventHandler.full_payment_timeout_periode;
@@ -160,6 +162,5 @@ public class PaymentEventSteps {
         final String error_message = eventResponse.getErrorMessage();
         assertEquals(timeout_string,error_message);
     }
-
 
 }

@@ -14,7 +14,4 @@ public class PaymentDTO {
         this.amount = amount;
     }
 
-    public PaymentDTO() {
-
-    }
 }

@@ -22,6 +22,7 @@ import io.cucumber.java.en.When;
 
 
 import java.math.BigDecimal;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -36,6 +37,7 @@ public class PaymentSteps {
     String customerId;
     String merchantId;
     Token token;
+    Payment payment;
     public boolean successfulPayment = false;
     public String errorMessage;
 
@@ -123,7 +125,8 @@ public class PaymentSteps {
     @When("the merchant initiates a payment for {string} kr by the customer")
     public void theMerchantInitiatesAPaymentForKrByTheCustomer(String amount) {
         try {
-            successfulPayment = paymentService.pay(new Payment.PaymentBuilder().amount(amount).debtor(customerId).creditor(merchantId).token(token).build());
+        	payment = new Payment.PaymentBuilder().amount(amount).debtor(customerId).creditor(merchantId).token(token).build();
+            successfulPayment = paymentService.pay(payment);
         } catch (NegativeAmountException | DebtorHasNoBankAccountException | AmountIsNotANumberException | InvalidTokenException | ArgumentNullException | CreditorHasNoBankAccountException | InsufficientBalanceException e) {
             errorMessage = e.getMessage();
             successfulPayment = false;
@@ -163,4 +166,10 @@ public class PaymentSteps {
         }
     }
 
+    @Then("the payment is contained in the repository")
+    public void thePaymentIsContainedInTheRepository() {
+    	Collection<Payment> payments = paymentService.getPayments();
+    	assertTrue(payments.contains(payment));
+    }
+    
 }

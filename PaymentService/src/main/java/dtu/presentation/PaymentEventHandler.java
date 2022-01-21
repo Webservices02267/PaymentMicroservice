@@ -263,29 +263,5 @@ public class PaymentEventHandler {
     }
 
 
-
-
-    //This is done by the Rest Service
-
-
-
-
-    //This is done by the TokenService
-    /*
-     public boolean doTokenVerificationResponseEvent(Token token) {
-        Event event = new Event(TOKEN_VERIFICATION_RESPONSE, new Object[]{ token });
-        messageQueue.publish(event);
-        return event.getArgument(0, Token.class).getValidToken();
-    }
-     */
-
-
-
-
-
-
-
-
-
 }
 

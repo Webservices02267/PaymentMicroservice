@@ -5,11 +5,8 @@ package dtu.application;
 import java.util.Collection;
 
 import dtu.domain.Payment;
-import dtu.domain.Report;
-import dtu.domain.Token;
 import dtu.exceptions.*;
 import dtu.infrastructure.interfaces.IPaymentRepository;
-import dtu.presentation.PaymentDTO;
 import dtu.ws.fastmoney.BankService;
 import messaging.GLOBAL_STRINGS;
 

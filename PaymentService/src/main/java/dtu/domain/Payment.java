@@ -95,28 +95,28 @@ public class Payment {
 
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Payment payment = (Payment) o;
-
-        if (status != payment.status) return false;
-        if (!Objects.equals(creditor, payment.creditor)) return false;
-        if (!Objects.equals(token, payment.token)) return false;
-        if (!Objects.equals(amount, payment.amount)) return false;
-        return Objects.equals(debtor, payment.debtor);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = creditor != null ? creditor.hashCode() : 0;
-        result = 31 * result + (token != null ? token.hashCode() : 0);
-        result = 31 * result + (amount != null ? amount.hashCode() : 0);
-        result = 31 * result + (debtor != null ? debtor.hashCode() : 0);
-        result = 31 * result + (status ? 1 : 0);
-        return result;
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        Payment payment = (Payment) o;
+//
+//        if (status != payment.status) return false;
+//        if (!Objects.equals(creditor, payment.creditor)) return false;
+//        if (!Objects.equals(token, payment.token)) return false;
+//        if (!Objects.equals(amount, payment.amount)) return false;
+//        return Objects.equals(debtor, payment.debtor);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = creditor != null ? creditor.hashCode() : 0;
+//        result = 31 * result + (token != null ? token.hashCode() : 0);
+//        result = 31 * result + (amount != null ? amount.hashCode() : 0);
+//        result = 31 * result + (debtor != null ? debtor.hashCode() : 0);
+//        result = 31 * result + (status ? 1 : 0);
+//        return result;
+//    }
 
 }

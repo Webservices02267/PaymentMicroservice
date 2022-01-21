@@ -1,9 +1,7 @@
 package dtu.application;
 
 import dtu.domain.Payment;
-import dtu.domain.Token;
 import dtu.exceptions.*;
-import dtu.presentation.PaymentDTO;
 
 import java.util.Collection;
 
