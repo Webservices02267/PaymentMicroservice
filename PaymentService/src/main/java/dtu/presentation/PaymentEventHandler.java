@@ -93,7 +93,7 @@ public class PaymentEventHandler {
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         } else {
             session.merchantAccountNumber = eventArgument.getArgument(0, String.class);
-            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.token));
+            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.tokenId));
             session.publishedEvents.put(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, event);
             this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED + sessionId, this::handleGetCustomerIdFromTokenResponse);
         }
