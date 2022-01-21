@@ -71,8 +71,8 @@ public class PaymentEventHandler {
         var eventArgument = e.getArgument(0, EventResponse.class);
         var sessionId = eventArgument.getSessionId();
         var session = new Session();
-        session.merchantId = eventArgument.getArgument(0, String.class);
-        session.tokenId = eventArgument.getArgument(1, String.class);
+        session.tokenId = eventArgument.getArgument(0, String.class);
+        session.merchantId = eventArgument.getArgument(1, String.class);
         session.amount = eventArgument.getArgument(2, String.class);
         session.description = eventArgument.getArgument(3, String.class);
         sessions.put(eventArgument.getSessionId(), session);
