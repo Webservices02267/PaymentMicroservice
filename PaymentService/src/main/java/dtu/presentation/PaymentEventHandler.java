@@ -95,7 +95,7 @@ public class PaymentEventHandler {
     public void handleMerchantIdToAccountNumberResponse(Event e) {
         var eventArgument = e.getArgument(0, EventResponse.class);
         var sessionId = eventArgument.getSessionId();
-        var session = sessions.get(sessionId);
+        Session session = sessions.get(sessionId);
         Event event;
         if (!eventArgument.isSuccess()) {
             event = new Event(PAYMENT_RESPONDED + sessionId, new EventResponse(sessionId, false, eventArgument.getErrorMessage()));
@@ -145,7 +145,10 @@ public class PaymentEventHandler {
                     .token(session.token)
                     .build();
             paymentService.pay(payment);
-            var logEvent = new Event(LOG_PAYMENT_REQUESTED, new EventResponse(sid, true, null, new PaymentLogDTO(payment)));
+            System.out.println("Payment: " + payment);
+            PaymentLogDTO paymentLogDTO = new PaymentLogDTO(session.customerId, session.merchantId, session.tokenId, session.amount);
+            System.out.println("paymentLogDTO: " + paymentLogDTO);
+			var logEvent = new Event(LOG_PAYMENT_REQUESTED, new EventResponse(sid, true, null, paymentLogDTO));
             messageQueue.publish(logEvent);
             event = new Event(PAYMENT_RESPONDED + sid, new EventResponse(sid, true, null, ALL_GOOD));
         } catch (NegativeAmountException | ArgumentNullException | AmountIsNotANumberException | InvalidTokenException
@@ -161,6 +164,13 @@ public class PaymentEventHandler {
         public PaymentLogDTO() {
 
         }
+        
+        public PaymentLogDTO(String customerId, String merchantId, String token, String amount) {
+    		this.customerId = customerId;
+    		this.merchantId = merchantId;
+    		this.token = token;
+    		this.amount = amount;
+    	}
 
         public PaymentLogDTO(Payment payment) {
             this.customerId = payment.getDebtor();
@@ -169,7 +179,13 @@ public class PaymentEventHandler {
             this.amount = payment.getAmount().toString();
         }
 
-        public String customerId;
+        @Override
+		public String toString() {
+			return "PaymentLogDTO [customerId=" + customerId + ", merchantId=" + merchantId + ", token=" + token
+					+ ", amount=" + amount + "]";
+		}
+
+		public String customerId;
         public String merchantId;
         public String token;
         public String amount;
