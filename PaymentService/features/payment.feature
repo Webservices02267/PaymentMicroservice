@@ -9,6 +9,7 @@ Feature: Payment
     Then the payment succeeded
     And the balance of the customer at the bank is "900" kr
     And the balance of the merchant at the bank is "2100" kr
+    And the payment is contained in the repository
 
   Scenario: Customer deleted their bank account after registering for DTU pay
     Given a customer with a bank account with balance "1000"

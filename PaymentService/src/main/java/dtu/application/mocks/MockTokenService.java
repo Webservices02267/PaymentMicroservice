@@ -37,10 +37,6 @@ public class MockTokenService  {
         return tokenRepository.get(customerId);
     }
 
-    public boolean deleteTokensForCustomer(String customerId) {
-        return tokenRepository.delete(customerId);
-    }
-
     public Token getVerifiedToken(String tokenUuid) {
         return tokenRepository.getVerfiedToken(tokenUuid);
     }

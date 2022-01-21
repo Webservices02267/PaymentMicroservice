@@ -4,11 +4,9 @@ package dtu.infrastructure;
 import dtu.domain.Token;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LocalTokenRepository  {
 
@@ -41,15 +39,6 @@ public class LocalTokenRepository  {
 	}
 
 
-	public boolean delete(String customerId) {
-		var tokensToRemove = customerHashMap.remove(customerId);
-		for (Token token : tokensToRemove) {
-			tokenHashMap.remove(token.getUuid());
-		}
-		return true;
-	}
-
-
 	public Token getVerfiedToken(String tokenUuid) {
 		try {
 			var token = tokenHashMap.remove(tokenUuid);
@@ -60,7 +49,4 @@ public class LocalTokenRepository  {
 		}
 	}
 
-	public HashSet<Token> getAll() {
-		return null;
-	}
 }
