@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static messaging.GLOBAL_STRINGS.OK_STRINGS.ALL_GOOD;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.*;
+import static messaging.GLOBAL_STRINGS.REPORT_SERVICE.HANDLE.*;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.OK_STRINGS.SANITY_CHECK;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.*;
 import static messaging.GLOBAL_STRINGS.TOKEN_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED;
@@ -144,7 +145,7 @@ public class PaymentEventHandler {
                     .token(session.token)
                     .build();
             paymentService.pay(payment);
-            var logEvent = new Event("LogPaymentRequest", new EventResponse(sid, true, null, new PaymentLogDTO(payment)));
+            var logEvent = new Event(LOG_PAYMENT_REQUESTED, new EventResponse(sid, true, null, new PaymentLogDTO(payment)));
             messageQueue.publish(logEvent);
             event = new Event(PAYMENT_RESPONDED + sid, new EventResponse(sid, true, null, ALL_GOOD));
         } catch (NegativeAmountException | ArgumentNullException | AmountIsNotANumberException | InvalidTokenException
