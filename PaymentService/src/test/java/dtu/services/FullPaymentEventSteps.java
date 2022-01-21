@@ -112,7 +112,7 @@ public class FullPaymentEventSteps {
     @When("a payment request is published")
     public void aPaymentRequestIsPublished() {
         sid = UUID.randomUUID().toString();
-        payment = new PaymentDTO(merchantId, token.getUuid(), amount);
+        payment = new PaymentDTO(token.getUuid(), merchantId, amount);
         payment.description = "all your base are belong to cucumber";
         validPaymentRequestEvent = service.doPaymentRequestEvent(payment, sid);
     }
