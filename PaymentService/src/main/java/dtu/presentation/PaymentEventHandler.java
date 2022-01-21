@@ -19,6 +19,7 @@ import static messaging.GLOBAL_STRINGS.OK_STRINGS.ALL_GOOD;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.*;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.OK_STRINGS.SANITY_CHECK;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.*;
+import static messaging.GLOBAL_STRINGS.TOKEN_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED;
 
 
 public class PaymentEventHandler {
@@ -93,9 +94,9 @@ public class PaymentEventHandler {
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         } else {
             session.merchantAccountNumber = eventArgument.getArgument(0, String.class);
-            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.token));
+            event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.tokenId));
             session.publishedEvents.put(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, event);
-            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED + sessionId, this::handleGetCustomerIdFromTokenResponse);
+            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED + sessionId, this::handleGetCustomerIdFromTokenResponse);
         }
         messageQueue.publish(event);
     }
@@ -108,12 +109,11 @@ public class PaymentEventHandler {
             e = new Event(PAYMENT_RESPONDED + sid, new EventResponse(sid, false, er.getErrorMessage()));
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         }
-        session.token = er.getArgument(0, Token.class);
-        session.customerId = session.token.getCustomerId();
-        session.tokenId = session.token.getUuid();
+        session.customerId = er.getArgument(0, String.class);
+        session.token = new Token(session.customerId, session.tokenId, true);
         Event event = new Event(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED, new EventResponse(sid, true, null, session.customerId));
         session.publishedEvents.put(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED, event);
-        this.messageQueue.addHandler(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED + sid, this::handleCustomerIdToAccountNumberResponse);
+        this.messageQueue.addHandler(CUSTOMER_TO_ACCOUNT_NUMBER_RESPONDED + sid, this::handleCustomerIdToAccountNumberResponse);
         messageQueue.publish(event);
     }
 
@@ -242,7 +242,7 @@ public class PaymentEventHandler {
         var session = sessions.get(sid);
         session.token = tokenService.getVerifiedToken(session.tokenId);
         if (session.token.getValidToken()) {
-            e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED  + sid, new EventResponse(sid, true, null, session.token));
+            e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED  + sid, new EventResponse(sid, true, null, session.token.getCustomerId()));
         } else {
             e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED + sid, new EventResponse(sid, false, "Invalid token"));
         }
