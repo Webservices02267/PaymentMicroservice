@@ -19,6 +19,7 @@ import static messaging.GLOBAL_STRINGS.OK_STRINGS.ALL_GOOD;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.HANDLE.*;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.OK_STRINGS.SANITY_CHECK;
 import static messaging.GLOBAL_STRINGS.PAYMENT_SERVICE.PUBLISH.*;
+import static messaging.GLOBAL_STRINGS.TOKEN_SERVICE.HANDLE.GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED;
 
 
 public class PaymentEventHandler {
@@ -95,7 +96,7 @@ public class PaymentEventHandler {
             session.merchantAccountNumber = eventArgument.getArgument(0, String.class);
             event = new Event(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, new EventResponse(sessionId, true, null, session.tokenId));
             session.publishedEvents.put(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED, event);
-            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_REQUESTED + sessionId, this::handleGetCustomerIdFromTokenResponse);
+            this.messageQueue.addHandler(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED + sessionId, this::handleGetCustomerIdFromTokenResponse);
         }
         messageQueue.publish(event);
     }
