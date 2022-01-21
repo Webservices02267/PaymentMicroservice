@@ -34,7 +34,7 @@ public class PaymentMessageFactory {
 
         service = new PaymentEventHandler(messageQueue,
                 new PaymentServiceImplementation(new BankServiceWrapper
-                        (new MockBankService()), new InMemoryRepository()));
+                        (new BankServiceService().getBankServicePort()), new InMemoryRepository()));
         //new StudentRegistrationServiceAdapter(service, mq);
         return service;
     }
