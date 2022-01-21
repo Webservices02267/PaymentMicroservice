@@ -160,9 +160,7 @@ public class PaymentEventHandler {
     }
 
     public static class PaymentLogDTO {
-
         public PaymentLogDTO() {
-
         }
         
         public PaymentLogDTO(String customerId, String merchantId, String token, String amount) {
@@ -171,13 +169,6 @@ public class PaymentEventHandler {
     		this.token = token;
     		this.amount = amount;
     	}
-
-        public PaymentLogDTO(Payment payment) {
-            this.customerId = payment.getDebtor();
-            this.merchantId = payment.getCreditor();
-            this.token = payment.getToken().getUuid();
-            this.amount = payment.getAmount().toString();
-        }
 
         @Override
 		public String toString() {
