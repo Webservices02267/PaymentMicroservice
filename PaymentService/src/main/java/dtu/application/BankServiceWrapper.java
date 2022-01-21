@@ -60,12 +60,14 @@ public class BankServiceWrapper {
         try {
             debtor = soapBank.getAccount(payment.getDebtor());
         } catch (BankServiceException_Exception e) {
+            e.printStackTrace();
             throw new DebtorHasNoBankAccountException("Debtor account id is not valid");
         }
 
         try {
             soapBank.getAccount(payment.getCreditor());
         } catch (BankServiceException_Exception e) {
+            e.printStackTrace();
             throw new CreditorHasNoBankAccountException("Creditor account id is not valid");
         }
 
@@ -73,7 +75,8 @@ public class BankServiceWrapper {
 
         try {
             soapBank.transferMoneyFromTo(payment.getDebtor(), payment.getCreditor(), payment.getAmount(), payment.getDescription());
-        } catch (BankServiceException_Exception ignored) {
+        } catch (BankServiceException_Exception e) {
+            e.printStackTrace();
         }
     }
 }

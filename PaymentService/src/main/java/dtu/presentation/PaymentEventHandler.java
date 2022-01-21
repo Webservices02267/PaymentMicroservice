@@ -38,6 +38,13 @@ public class PaymentEventHandler {
         public String description;
         public Token token;
         public HashMap<String, Event> publishedEvents = new HashMap<>();
+        @Override
+        public String toString() {
+            return "Session [amount=" + amount + ", customerAccountNumber=" + customerAccountNumber + ", customerId="
+                    + customerId + ", description=" + description + ", merchantAccountNumber=" + merchantAccountNumber
+                    + ", merchantId=" + merchantId + ", publishedEvents=" + publishedEvents + ", token=" + token
+                    + ", tokenId=" + tokenId + "]";
+        }
     }
 
     private final MessageQueue messageQueue;
@@ -126,6 +133,7 @@ public class PaymentEventHandler {
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         }
         session.customerAccountNumber = er.getArgument(0, String.class);
+        System.out.println(session);
         Event event;
         try {
             var payment = new Payment.PaymentBuilder()

@@ -119,4 +119,10 @@ public class Payment {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Payment [amount=" + amount + ", creditor=" + creditor + ", debtor=" + debtor + ", description="
+                + description + ", status=" + status + ", token=" + token + "]";
+    }
+
 }

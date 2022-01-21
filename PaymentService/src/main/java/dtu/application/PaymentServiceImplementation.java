@@ -34,6 +34,7 @@ public class PaymentServiceImplementation implements IPaymentService {
 
     @Override
     public boolean pay(Payment payment) throws DebtorHasNoBankAccountException, CreditorHasNoBankAccountException, InsufficientBalanceException {
+        System.out.println("Payment: " + payment);
         try {
             bankService.transferMoney(payment);
             payment.updateStatus(true);
