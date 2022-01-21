@@ -108,9 +108,8 @@ public class PaymentEventHandler {
             e = new Event(PAYMENT_RESPONDED + sid, new EventResponse(sid, false, er.getErrorMessage()));
             session.publishedEvents.put(PAYMENT_RESPONDED, e);
         }
-        session.token = er.getArgument(0, Token.class);
-        session.customerId = session.token.getCustomerId();
-        session.tokenId = session.token.getUuid();
+        session.customerId = er.getArgument(0, String.class);
+        session.token = new Token(session.customerId, session.tokenId, true);
         Event event = new Event(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED, new EventResponse(sid, true, null, session.customerId));
         session.publishedEvents.put(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED, event);
         this.messageQueue.addHandler(CUSTOMER_ID_TO_ACCOUNT_NUMBER_REQUESTED + sid, this::handleCustomerIdToAccountNumberResponse);
@@ -242,7 +241,7 @@ public class PaymentEventHandler {
         var session = sessions.get(sid);
         session.token = tokenService.getVerifiedToken(session.tokenId);
         if (session.token.getValidToken()) {
-            e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED  + sid, new EventResponse(sid, true, null, session.token));
+            e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED  + sid, new EventResponse(sid, true, null, session.token.getCustomerId()));
         } else {
             e = new Event(GET_CUSTOMER_ID_FROM_TOKEN_RESPONDED + sid, new EventResponse(sid, false, "Invalid token"));
         }
